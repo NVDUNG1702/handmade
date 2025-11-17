@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2, Sparkles, User, Phone } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { initializeGoogleAuth } from "@/lib/google-auth";
 
 export function RegisterFormBeautiful() {
   const [formData, setFormData] = useState({
@@ -21,9 +22,21 @@ export function RegisterFormBeautiful() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
   
   const { register, loginWithGoogle, loading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    initializeGoogleAuth()
+      .then(() => {
+        console.log("✅ [RegisterForm] Google Auth initialized");
+        setIsGoogleReady(true);
+      })
+      .catch((error) => {
+        console.error("❌ [RegisterForm] Failed to initialize Google Auth:", error);
+      });
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -310,7 +323,7 @@ export function RegisterFormBeautiful() {
               type="button"
               variant="outline"
               onClick={handleGoogleRegister}
-              disabled={isGoogleLoading || isLoading || loading}
+              disabled={!isGoogleReady || isGoogleLoading || isLoading || loading}
               className="h-11"
             >
               {isGoogleLoading ? (

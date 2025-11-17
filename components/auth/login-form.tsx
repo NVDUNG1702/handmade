@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -11,15 +11,23 @@ import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { initializeGoogleAuth } from "@/lib/google-auth";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
   
   const { login, loginWithGoogle, loading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    initializeGoogleAuth()
+      .then(() => setIsGoogleReady(true))
+      .catch((error) => console.error("Failed to init Google:", error));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,7 +151,7 @@ export function LoginForm() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleLogin}
-          disabled={isLoading || loading}
+          disabled={!isGoogleReady || isLoading || loading}
         >
           <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
             <path

@@ -86,19 +86,32 @@ export function isAuthenticated(): boolean {
  */
 export async function loginWithGoogle(): Promise<AuthResponse> {
   try {
-    const googleUser = await signInWithGoogle();
+    console.log("🔵 [Auth] Starting Google login...");
+    const accessToken = await signInWithGoogle();
+    console.log("✅ [Auth] Google OAuth2 successful, access_token received");
 
-    // Send Google token to backend for verification
+    // Send Google access token to backend for verification
+    console.log("🔵 [Auth] Sending access_token to backend for verification...");
     const res = await axiosInstance.post<ApiResponse<AuthResponse>>(
       "/auth/google/verify",
       {
-        googleToken: googleUser.token, // Use the actual Google JWT token
+        googleToken: accessToken, // Send OAuth2 access_token
       }
     );
+    console.log("✅ [Auth] Backend verification successful");
 
     return res.data.data;
-  } catch (error) {
-    throw new Error("Google login failed");
+  } catch (error: any) {
+    console.error("❌ [Auth] Google login failed:", error);
+    console.error("❌ [Auth] Error details:", {
+      message: error?.message,
+      response: error?.response?.data,
+      status: error?.response?.status
+    });
+    
+    // Throw with more detailed error message
+    const errorMessage = error?.response?.data?.message || error?.message || "Google login failed";
+    throw new Error(errorMessage);
   }
 }
 
@@ -107,18 +120,31 @@ export async function loginWithGoogle(): Promise<AuthResponse> {
  */
 export async function registerWithGoogle(): Promise<AuthResponse> {
   try {
-    const googleUser = await signInWithGoogle();
+    console.log("🔵 [Auth] Starting Google registration...");
+    const accessToken = await signInWithGoogle();
+    console.log("✅ [Auth] Google OAuth2 successful, access_token received");
 
-    // Send Google token to backend for verification (same as login)
+    // Send Google access token to backend for verification (same as login)
+    console.log("🔵 [Auth] Sending access_token to backend for verification...");
     const res = await axiosInstance.post<ApiResponse<AuthResponse>>(
       "/auth/google/verify",
       {
-        googleToken: googleUser.token, // Use the actual Google JWT token
+        googleToken: accessToken, // Send OAuth2 access_token
       }
     );
+    console.log("✅ [Auth] Backend verification successful");
 
     return res.data.data;
-  } catch (error) {
-    throw new Error("Google registration failed");
+  } catch (error: any) {
+    console.error("❌ [Auth] Google registration failed:", error);
+    console.error("❌ [Auth] Error details:", {
+      message: error?.message,
+      response: error?.response?.data,
+      status: error?.response?.status
+    });
+    
+    // Throw with more detailed error message
+    const errorMessage = error?.response?.data?.message || error?.message || "Google registration failed";
+    throw new Error(errorMessage);
   }
 }

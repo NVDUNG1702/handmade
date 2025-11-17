@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { initializeGoogleAuth } from "@/lib/google-auth";
 
 export function LoginFormBeautiful() {
   const [email, setEmail] = useState("");
@@ -16,9 +17,22 @@ export function LoginFormBeautiful() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
   
   const { login, loginWithGoogle, loading } = useAuth();
   const router = useRouter();
+
+  // Initialize Google Auth when component mounts
+  useEffect(() => {
+    initializeGoogleAuth()
+      .then(() => {
+        console.log("✅ [LoginForm] Google Auth initialized");
+        setIsGoogleReady(true);
+      })
+      .catch((error) => {
+        console.error("❌ [LoginForm] Failed to initialize Google Auth:", error);
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,7 +244,7 @@ export function LoginFormBeautiful() {
               type="button"
               variant="outline"
               onClick={handleGoogleLogin}
-              disabled={isGoogleLoading || isLoading || loading}
+              disabled={!isGoogleReady || isGoogleLoading || isLoading || loading}
               className="h-11"
             >
               {isGoogleLoading ? (
