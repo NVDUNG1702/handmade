@@ -53,7 +53,7 @@ export function RegisterForm() {
     try {
       await register(formData);
       toast.success("Đăng ký thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng ký thất bại");
     } finally {
@@ -66,7 +66,7 @@ export function RegisterForm() {
     try {
       await loginWithGoogle();
       toast.success("Đăng ký Google thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng ký Google thất bại");
     } finally {

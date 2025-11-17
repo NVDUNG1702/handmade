@@ -52,7 +52,7 @@ export function RegisterFormBeautiful() {
     try {
       await register(formData);
       toast.success("Đăng ký thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng ký thất bại");
     } finally {
@@ -65,7 +65,7 @@ export function RegisterFormBeautiful() {
     try {
       await loginWithGoogle();
       toast.success("Đăng ký Google thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng ký Google thất bại");
     } finally {
@@ -74,7 +74,7 @@ export function RegisterFormBeautiful() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" suppressHydrationWarning>
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary/10 via-accent/10 to-primary/10 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-full blur-3xl" />

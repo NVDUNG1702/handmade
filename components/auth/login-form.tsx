@@ -41,7 +41,7 @@ export function LoginForm() {
     try {
       await login(email, password);
       toast.success("Đăng nhập thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng nhập thất bại");
     } finally {
@@ -54,7 +54,7 @@ export function LoginForm() {
     try {
       await loginWithGoogle();
       toast.success("Đăng nhập Google thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng nhập Google thất bại");
     } finally {

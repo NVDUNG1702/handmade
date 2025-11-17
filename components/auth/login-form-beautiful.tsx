@@ -41,7 +41,7 @@ export function LoginFormBeautiful() {
     try {
       await login(email, password);
       toast.success("Đăng nhập thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng nhập thất bại");
     } finally {
@@ -54,7 +54,7 @@ export function LoginFormBeautiful() {
     try {
       await loginWithGoogle();
       toast.success("Đăng nhập Google thành công!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       toast.error(error?.message || "Đăng nhập Google thất bại");
     } finally {
@@ -63,7 +63,7 @@ export function LoginFormBeautiful() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" suppressHydrationWarning>
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary/10 via-accent/10 to-primary/10 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-full blur-3xl" />
