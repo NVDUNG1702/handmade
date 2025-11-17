@@ -30,10 +30,6 @@ export function OnlineStatus({
   // Live updating time text
   const liveTimeText = useLiveTime(lastSeen, isOnline);
   
-  // Debug log
-  if (userId) {
-    console.log(`🎯 [OnlineStatus] userId=${userId}, isOnline=${isOnline}, lastSeen=${lastSeen}`);
-  }
   const sizeClasses = {
     sm: "w-2 h-2",
     md: "w-3 h-3", 

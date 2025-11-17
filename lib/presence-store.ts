@@ -30,7 +30,6 @@ export const usePresenceStore = create<PresenceState>()(
       userPresence: {},
 
       setUserOnline: (userId: string, timestamp?: string) => {
-        console.log(`🟢 [PresenceStore] Setting user ${userId} ONLINE`);
         set((state) => ({
           userPresence: {
             ...state.userPresence,
@@ -45,7 +44,6 @@ export const usePresenceStore = create<PresenceState>()(
       },
 
       setUserOffline: (userId: string, lastSeen: string) => {
-        console.log(`🔴 [PresenceStore] Setting user ${userId} OFFLINE (lastSeen: ${lastSeen})`);
         set((state) => ({
           userPresence: {
             ...state.userPresence,

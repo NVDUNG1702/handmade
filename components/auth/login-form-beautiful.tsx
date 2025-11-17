@@ -25,13 +25,8 @@ export function LoginFormBeautiful() {
   // Initialize Google Auth when component mounts
   useEffect(() => {
     initializeGoogleAuth()
-      .then(() => {
-        console.log("✅ [LoginForm] Google Auth initialized");
-        setIsGoogleReady(true);
-      })
-      .catch((error) => {
-        console.error("❌ [LoginForm] Failed to initialize Google Auth:", error);
-      });
+      .then(() => setIsGoogleReady(true))
+      .catch((error) => console.error("❌ Failed to initialize Google Auth:", error));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

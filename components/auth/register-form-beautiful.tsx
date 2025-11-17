@@ -29,13 +29,8 @@ export function RegisterFormBeautiful() {
 
   useEffect(() => {
     initializeGoogleAuth()
-      .then(() => {
-        console.log("✅ [RegisterForm] Google Auth initialized");
-        setIsGoogleReady(true);
-      })
-      .catch((error) => {
-        console.error("❌ [RegisterForm] Failed to initialize Google Auth:", error);
-      });
+      .then(() => setIsGoogleReady(true))
+      .catch((error) => console.error("❌ Failed to initialize Google Auth:", error));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

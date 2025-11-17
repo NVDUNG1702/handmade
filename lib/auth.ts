@@ -86,28 +86,19 @@ export function isAuthenticated(): boolean {
  */
 export async function loginWithGoogle(): Promise<AuthResponse> {
   try {
-    console.log("🔵 [Auth] Starting Google login...");
     const accessToken = await signInWithGoogle();
-    console.log("✅ [Auth] Google OAuth2 successful, access_token received");
 
     // Send Google access token to backend for verification
-    console.log("🔵 [Auth] Sending access_token to backend for verification...");
     const res = await axiosInstance.post<ApiResponse<AuthResponse>>(
       "/auth/google/verify",
       {
         googleToken: accessToken, // Send OAuth2 access_token
       }
     );
-    console.log("✅ [Auth] Backend verification successful");
 
     return res.data.data;
   } catch (error: any) {
-    console.error("❌ [Auth] Google login failed:", error);
-    console.error("❌ [Auth] Error details:", {
-      message: error?.message,
-      response: error?.response?.data,
-      status: error?.response?.status
-    });
+    console.error("❌ [Auth] Google login failed:", error?.response?.data || error?.message);
     
     // Throw with more detailed error message
     const errorMessage = error?.response?.data?.message || error?.message || "Google login failed";
@@ -120,28 +111,19 @@ export async function loginWithGoogle(): Promise<AuthResponse> {
  */
 export async function registerWithGoogle(): Promise<AuthResponse> {
   try {
-    console.log("🔵 [Auth] Starting Google registration...");
     const accessToken = await signInWithGoogle();
-    console.log("✅ [Auth] Google OAuth2 successful, access_token received");
 
     // Send Google access token to backend for verification (same as login)
-    console.log("🔵 [Auth] Sending access_token to backend for verification...");
     const res = await axiosInstance.post<ApiResponse<AuthResponse>>(
       "/auth/google/verify",
       {
         googleToken: accessToken, // Send OAuth2 access_token
       }
     );
-    console.log("✅ [Auth] Backend verification successful");
 
     return res.data.data;
   } catch (error: any) {
-    console.error("❌ [Auth] Google registration failed:", error);
-    console.error("❌ [Auth] Error details:", {
-      message: error?.message,
-      response: error?.response?.data,
-      status: error?.response?.status
-    });
+    console.error("❌ [Auth] Google registration failed:", error?.response?.data || error?.message);
     
     // Throw with more detailed error message
     const errorMessage = error?.response?.data?.message || error?.message || "Google registration failed";
