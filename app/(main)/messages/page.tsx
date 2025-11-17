@@ -116,11 +116,11 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="flex bg-background overflow-hidden h-screen-minus-nav">
+    <div className="flex h-full bg-background">
       {/* Conversation List - Desktop always visible, Mobile conditional */}
       <div
         className={cn(
-          "w-full md:w-80 lg:w-96 border-r flex-shrink-0 h-full",
+          "w-full md:w-80 lg:w-96 border-r flex-shrink-0 h-full bg-muted/30",
           showMobileChat ? "hidden md:flex" : "flex"
         )}
       >
@@ -143,7 +143,7 @@ export default function MessagesPage() {
         {selectedConversationId && currentConversation ? (
           <>
             {/* Chat Header */}
-            <div className="border-b p-4 flex items-center justify-between bg-background flex-shrink-0">
+            <div className="border-b px-4 py-3 flex items-center justify-between bg-background/95 backdrop-blur-sm flex-shrink-0 shadow-sm">
               <div className="flex items-center gap-3">
                 {/* Back button for mobile */}
                 <Button
@@ -223,9 +223,9 @@ export default function MessagesPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full p-4">
-                <div className="space-y-4">
+            <div className="flex-1 overflow-hidden bg-muted/20">
+              <ScrollArea className="h-full px-4 py-6">
+                <div className="space-y-3 max-w-4xl mx-auto">
                 {/* Load more button */}
                 {hasMore && (
                   <div className="text-center">

@@ -110,10 +110,10 @@ export function MessageInput({
   }, []);
 
   return (
-    <div className={cn("border-t bg-background p-4", className)}>
+    <div className={cn("border-t bg-background/95 backdrop-blur-sm px-4 py-3 shadow-sm", className)}>
       {/* Reply indicator */}
       {replyingTo && (
-        <div className="mb-3 p-3 bg-muted rounded-lg flex items-start justify-between">
+        <div className="mb-2 p-2.5 bg-primary/5 border border-primary/20 rounded-lg flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="text-xs text-muted-foreground mb-1">
               Trả lời {replyingTo.sender?.full_name || replyingTo.sender?.username}
@@ -155,7 +155,7 @@ export function MessageInput({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}
-            className="min-h-[40px] max-h-32 resize-none pr-12"
+            className="min-h-[40px] max-h-32 resize-none pr-12 rounded-xl border-2 focus-visible:ring-1"
             rows={1}
           />
 
@@ -175,7 +175,8 @@ export function MessageInput({
         <Button
           onClick={handleSend}
           disabled={disabled || !message.trim()}
-          className="h-10 w-10 p-0 flex-shrink-0"
+          className="h-10 w-10 p-0 flex-shrink-0 rounded-xl"
+          size="icon"
         >
           <Send className="w-4 h-4" />
         </Button>

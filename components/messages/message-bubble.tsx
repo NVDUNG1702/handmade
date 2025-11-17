@@ -62,7 +62,7 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        "flex gap-3 group",
+        "flex gap-2.5 group",
         isOwn ? "flex-row-reverse" : "flex-row"
       )}
       onMouseEnter={() => setShowActions(true)}
@@ -96,10 +96,10 @@ export function MessageBubble({
         {/* Message Bubble */}
         <div
           className={cn(
-            "relative px-4 py-2 rounded-2xl max-w-full break-words",
+            "relative px-4 py-2.5 rounded-2xl max-w-full break-words shadow-sm",
             isOwn
               ? "bg-primary text-primary-foreground rounded-br-md"
-              : "bg-muted rounded-bl-md"
+              : "bg-muted/80 rounded-bl-md border"
           )}
         >
           {/* Reply indicator */}
@@ -110,7 +110,7 @@ export function MessageBubble({
           )}
 
           {/* Message content */}
-          <div className="text-sm whitespace-pre-wrap">
+          <div className="text-sm whitespace-pre-wrap leading-relaxed">
             {message.content}
           </div>
 
