@@ -24,7 +24,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative glass border-t border-border/50 mt-20 overflow-hidden">
+    <footer className="relative glass border-t border-border/50 mt-auto overflow-hidden">
       {/* Decorative stitching at top */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       <div className="absolute top-2 left-0 right-0 flex justify-center gap-8">

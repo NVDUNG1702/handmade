@@ -13,27 +13,28 @@ interface OnlineStatusProps {
   className?: string;
 }
 
-export function OnlineStatus({ 
+export function OnlineStatus({
   userId,
-  isOnline: fallbackIsOnline, 
-  lastSeen: fallbackLastSeen, 
-  size = "md", 
+  isOnline: fallbackIsOnline,
+  lastSeen: fallbackLastSeen,
+  size = "md",
   showText = false,
-  className 
+  className,
 }: OnlineStatusProps) {
   // Use real-time presence if userId provided, otherwise fallback to props
-  const { isOnline: realtimeIsOnline, lastSeen: realtimeLastSeen } = useUserPresence(userId);
-  
-  const isOnline = userId ? realtimeIsOnline : (fallbackIsOnline || false);
+  const { isOnline: realtimeIsOnline, lastSeen: realtimeLastSeen } =
+    useUserPresence(userId);
+
+  const isOnline = userId ? realtimeIsOnline : fallbackIsOnline || false;
   const lastSeen = userId ? realtimeLastSeen : fallbackLastSeen;
-  
+
   // Live updating time text
   const liveTimeText = useLiveTime(lastSeen, isOnline);
-  
+
   const sizeClasses = {
-    sm: "w-2 h-2",
-    md: "w-3 h-3", 
-    lg: "w-4 h-4"
+    sm: "w-3 h-3",
+    md: "w-3.5 h-3.5",
+    lg: "w-4 h-4",
   };
 
   if (showText) {
@@ -41,7 +42,7 @@ export function OnlineStatus({
       <div className={cn("flex items-center gap-2", className)}>
         <div
           className={cn(
-            "rounded-full border-2 border-background",
+            "rounded-full border border-background shadow-sm",
             sizeClasses[size],
             isOnline ? "bg-green-500" : "bg-gray-400"
           )}
@@ -56,7 +57,7 @@ export function OnlineStatus({
   return (
     <div
       className={cn(
-        "rounded-full border-2 border-background",
+        "rounded-full border border-background shadow-sm",
         sizeClasses[size],
         isOnline ? "bg-green-500" : "bg-gray-400",
         className

@@ -134,7 +134,9 @@ export function ConversationList({
         <div className="p-2">
           {filteredConversations.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              {searchQuery ? "Không tìm thấy cuộc trò chuyện" : "Chưa có tin nhắn nào"}
+              {searchQuery
+                ? "Không tìm thấy cuộc trò chuyện"
+                : "Chưa có tin nhắn nào"}
             </div>
           ) : (
             <div className="space-y-1">
@@ -156,16 +158,17 @@ export function ConversationList({
                       <Avatar className="w-12 h-12">
                         <AvatarImage src={otherUser?.avatar} />
                         <AvatarFallback>
-                          {otherUser?.full_name?.charAt(0) || 
-                           otherUser?.username?.charAt(0) || "U"}
+                          {otherUser?.full_name?.charAt(0) ||
+                            otherUser?.username?.charAt(0) ||
+                            "U"}
                         </AvatarFallback>
                       </Avatar>
                       {/* Online indicator */}
-                      <OnlineStatus 
+                      <OnlineStatus
                         userId={otherUser?._id}
                         isOnline={otherUser?.status || false}
-                        size="sm"
-                        className="absolute -bottom-0.5 -right-0.5"
+                        size="md"
+                        className="absolute bottom-0 right-0"
                       />
                     </div>
 
@@ -188,9 +191,10 @@ export function ConversationList({
 
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground truncate">
-                          {conversation.lastMessage?.content || "Chưa có tin nhắn"}
+                          {conversation.lastMessage?.content ||
+                            "Chưa có tin nhắn"}
                         </p>
-                        
+
                         <div className="flex items-center gap-1">
                           {/* Unread count */}
                           {conversation.unreadCount > 0 && (
@@ -198,7 +202,9 @@ export function ConversationList({
                               variant="default"
                               className="h-5 min-w-[20px] text-xs px-1.5"
                             >
-                              {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                              {conversation.unreadCount > 99
+                                ? "99+"
+                                : conversation.unreadCount}
                             </Badge>
                           )}
                         </div>

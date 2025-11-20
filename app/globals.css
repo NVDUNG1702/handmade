@@ -5,13 +5,13 @@
 
 /* Custom utility classes */
 .h-screen-minus-nav {
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem); /* h-16 = 4rem */
   max-height: calc(100vh - 4rem);
 }
 
 @media (min-width: 768px) {
   .h-screen-minus-nav {
-    height: calc(100vh - 4.5rem);
+    height: calc(100vh - 4.5rem); /* h-18 = 4.5rem */
     max-height: calc(100vh - 4.5rem);
   }
 }

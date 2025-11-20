@@ -10,14 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreVertical,
-  Reply,
-  Copy,
-  Edit,
-  Trash2,
-  Heart,
-} from "lucide-react";
+import { MoreVertical, Reply, Copy, Edit, Trash2, Heart } from "lucide-react";
 import { MessageTimestamp } from "./message-status";
 import { cn } from "@/lib/utils";
 import type { MessageResponse } from "@/lib/types-message";
@@ -68,16 +61,20 @@ export function MessageBubble({
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      {/* Avatar */}
-      {showAvatar && !isOwn && (
-        <Avatar className="w-8 h-8 flex-shrink-0">
-          <AvatarImage src={message.sender?.avatar} />
-          <AvatarFallback>
-            {message.sender?.full_name?.charAt(0) || 
-             message.sender?.username?.charAt(0) || "U"}
-          </AvatarFallback>
-        </Avatar>
-      )}
+      {/* Avatar or Spacer */}
+      {!isOwn &&
+        (showAvatar ? (
+          <Avatar className="w-8 h-8 flex-shrink-0">
+            <AvatarImage src={message.sender?.avatar} />
+            <AvatarFallback>
+              {message.sender?.full_name?.charAt(0) ||
+                message.sender?.username?.charAt(0) ||
+                "U"}
+            </AvatarFallback>
+          </Avatar>
+        ) : (
+          <div className="w-8 flex-shrink-0" />
+        ))}
 
       {/* Message Content */}
       <div
@@ -130,13 +127,8 @@ export function MessageBubble({
 
           {/* Message metadata */}
           {showTime && (
-            <div
-              className={cn(
-                "mt-1",
-                isOwn ? "text-right" : "text-left"
-              )}
-            >
-              <MessageTimestamp 
+            <div className={cn("mt-1", isOwn ? "text-right" : "text-left")}>
+              <MessageTimestamp
                 timestamp={message.created_at}
                 status={message.status}
                 isOwn={isOwn}
@@ -195,7 +187,7 @@ export function MessageBubble({
                 <Copy className="w-4 h-4 mr-2" />
                 Sao chép
               </DropdownMenuItem>
-              
+
               {onReply && (
                 <DropdownMenuItem onClick={() => onReply(message)}>
                   <Reply className="w-4 h-4 mr-2" />
@@ -211,7 +203,7 @@ export function MessageBubble({
               )}
 
               {isOwn && onDelete && (
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(message._id)}
                   className="text-destructive"
                 >

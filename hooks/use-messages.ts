@@ -25,7 +25,7 @@ export const useMessages = (conversationId: string | null) => {
   const queryClient = useQueryClient();
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const typingTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
-  
+
   const {
     currentMessages,
     messagesLoading,
@@ -66,7 +66,9 @@ export const useMessages = (conversationId: string | null) => {
           updateMessage(currentMessages[tempIndex]._id, data.message);
         } else {
           // Add new message if not duplicate
-          const exists = currentMessages.some((m) => m._id === data.message._id);
+          const exists = currentMessages.some(
+            (m) => m._id === data.message._id
+          );
           if (!exists) {
             addMessage(data.message);
           }
@@ -130,7 +132,7 @@ export const useMessages = (conversationId: string | null) => {
       messageSocket.off("message:read", handleMessageRead);
       messageSocket.off("message:typing:start", handleTypingStart);
       messageSocket.off("message:typing:stop", handleTypingStop);
-      
+
       // Leave conversation room
       messageSocket.leaveConversation(conversationId);
     };
@@ -208,7 +210,14 @@ export const useMessages = (conversationId: string | null) => {
 
   // Load more messages
   const loadMore = useCallback(async () => {
-    if (!conversationId || !hasMoreMessages || messagesLoading || !lastMessageId) return;
+    if (
+      !conversationId ||
+      !hasMoreMessages ||
+      messagesLoading ||
+      !lastMessageId
+    ) {
+      return;
+    }
 
     setMessagesLoading(true);
     try {
@@ -237,7 +246,6 @@ export const useMessages = (conversationId: string | null) => {
         setLastMessageId(response.data.last_message_id || null);
       }
     } catch (error) {
-      console.error("Load more messages error:", error);
       toast.error("Không thể tải thêm tin nhắn");
     } finally {
       setMessagesLoading(false);
@@ -372,7 +380,8 @@ export const useMessages = (conversationId: string | null) => {
 export const useConversations = (params?: ConversationQueryParams) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { conversations, setConversations, setConversationsLoading } = useMessageStore();
+  const { conversations, setConversations, setConversationsLoading } =
+    useMessageStore();
   const { setUserOnline, setUserOffline } = usePresenceStore();
 
   const {
@@ -401,17 +410,19 @@ export const useConversations = (params?: ConversationQueryParams) => {
     if (conversationsData?.data) {
       const conversationsList = conversationsData.data.data || [];
       setConversations(conversationsList);
-      
+
       // Sync presence từ API data
       console.log("🔄 [Conversations] Syncing presence from API data...");
       conversationsList.forEach((conversation) => {
         // Lấy sender (user khác trong conversation)
         const otherUser = conversation.sender;
-        
+
         if (otherUser && otherUser._id !== user?.id) {
           // Nếu có last_seen thì user offline, ngược lại online
           if (otherUser.last_seen) {
-            console.log(`📥 [Presence] Setting ${otherUser.username} offline (last_seen: ${otherUser.last_seen})`);
+            console.log(
+              `📥 [Presence] Setting ${otherUser.username} offline (last_seen: ${otherUser.last_seen})`
+            );
             setUserOffline(otherUser._id, otherUser.last_seen);
           } else {
             console.log(`📥 [Presence] Setting ${otherUser.username} online`);
@@ -420,7 +431,13 @@ export const useConversations = (params?: ConversationQueryParams) => {
         }
       });
     }
-  }, [conversationsData, setConversations, setUserOnline, setUserOffline, user?.id]);
+  }, [
+    conversationsData,
+    setConversations,
+    setUserOnline,
+    setUserOffline,
+    user?.id,
+  ]);
 
   // Mutation để tạo conversation by slug
   const createConversationBySlugMutation = useMutation({

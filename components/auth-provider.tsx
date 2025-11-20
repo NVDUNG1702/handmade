@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, ReactNode } from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import type { AuthUser } from "@/lib/types";
+import { GlobalLoading } from "@/components/ui/global-loading";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -61,8 +62,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     updateUser,
   };
 
+  // Show global loading only when not initialized (first time)
+  // Don't show loading on subsequent auth checks to prevent flash
+  const showGlobalLoading = !initialized;
+
   return (
     <AuthContext.Provider value={contextValue}>
+      {showGlobalLoading && (
+        <GlobalLoading message="Đang kiểm tra đăng nhập..." />
+      )}
       {children}
     </AuthContext.Provider>
   );
@@ -79,7 +87,7 @@ export function useAuth() {
 // Hook để check auth status với loading state
 export function useAuthStatus() {
   const { isAuthenticated, loading, initialized } = useAuth();
-  
+
   return {
     isAuthenticated,
     loading,

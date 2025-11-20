@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+// Scroll restoration timing constants
+const SCROLL_RESTORE_DELAYS = {
+  INITIAL: 50, // Initial delay for DOM update
+  CONTENT_LOAD: 200, // Delay for lazy-loaded content
+  UNBLOCK: 50, // Delay before unblocking scroll
+} as const;
+
 import { useAuth } from "@/components/auth-provider";
 import { useMessages, useConversations } from "@/hooks/use-messages";
 import { ConversationList } from "@/components/messages/conversation-list";
@@ -8,10 +16,10 @@ import { MessageBubble } from "@/components/messages/message-bubble";
 import { MessageInput } from "@/components/messages/message-input";
 import { TypingIndicator } from "@/components/messages/typing-indicator";
 import { OnlineStatus } from "@/components/messages/online-status";
+import { DateSeparator } from "@/components/messages/date-separator";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
@@ -30,14 +38,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import type { MessageResponse, ConversationResponse } from "@/lib/types-message";
+import type {
+  MessageResponse,
+  ConversationResponse,
+} from "@/lib/types-message";
 
 export default function MessagesPage() {
   const { user } = useAuth();
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    string | null
+  >(null);
   const [replyingTo, setReplyingTo] = useState<MessageResponse | null>(null);
   const [showMobileChat, setShowMobileChat] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const isRestoringScroll = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const previousMessageCount = useRef<number>(0);
+  const scrollRestoreData = useRef<{
+    oldHeight: number;
+    oldScrollTop: number;
+    oldCount: number;
+  } | null>(null);
 
   // Hooks
   const { conversations, isLoading: conversationsLoading } = useConversations();
@@ -59,16 +82,109 @@ export default function MessagesPage() {
     (conv) => conv._id === selectedConversationId
   );
 
-  // Auto scroll to bottom when new messages arrive
+  // Restore scroll position after loading more
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    const container = scrollContainerRef.current;
+    if (!container || !isLoadingMore || !scrollRestoreData.current) return;
+
+    const { oldHeight, oldScrollTop, oldCount } = scrollRestoreData.current;
+    const newCount = messages.length;
+
+    // Wait until messages actually increased
+    if (newCount <= oldCount) {
+      return;
     }
-  }, [messages]);
+
+    // Update previousMessageCount to prevent scroll to bottom after unblock
+    previousMessageCount.current = newCount;
+
+    // Set flag to block all other scrolls
+    isRestoringScroll.current = true;
+
+    let rafId1: number;
+    let rafId2: number;
+    let timerId1: NodeJS.Timeout;
+    let timerId2: NodeJS.Timeout;
+    let timerId3: NodeJS.Timeout;
+
+    // Wait for DOM to render - optimized timing
+    rafId1 = requestAnimationFrame(() => {
+      rafId2 = requestAnimationFrame(() => {
+        // Initial scroll restoration
+        timerId1 = setTimeout(() => {
+          if (!container || !scrollRestoreData.current) return;
+
+          const newHeight = container.scrollHeight;
+          const heightDiff = newHeight - oldHeight;
+          const newScrollTop = oldScrollTop + heightDiff;
+
+          // Set scroll position directly - NO animation
+          container.scrollTop = newScrollTop;
+
+          // Double-check after content loads (images/avatars)
+          timerId2 = setTimeout(() => {
+            if (!container) return;
+            const finalHeight = container.scrollHeight;
+            if (finalHeight !== newHeight) {
+              const finalHeightDiff = finalHeight - oldHeight;
+              const finalScrollTop = oldScrollTop + finalHeightDiff;
+              container.scrollTop = finalScrollTop;
+            }
+
+            // Unblock scroll
+            timerId3 = setTimeout(() => {
+              isRestoringScroll.current = false;
+              scrollRestoreData.current = null;
+              setIsLoadingMore(false);
+            }, SCROLL_RESTORE_DELAYS.UNBLOCK);
+          }, SCROLL_RESTORE_DELAYS.CONTENT_LOAD);
+        }, SCROLL_RESTORE_DELAYS.INITIAL);
+      });
+    });
+
+    // Cleanup function
+    return () => {
+      if (rafId1) cancelAnimationFrame(rafId1);
+      if (rafId2) cancelAnimationFrame(rafId2);
+      if (timerId1) clearTimeout(timerId1);
+      if (timerId2) clearTimeout(timerId2);
+      if (timerId3) clearTimeout(timerId3);
+    };
+  }, [messages, isLoadingMore]);
+
+  // Auto scroll to bottom when new messages arrive (not loading more)
+  useEffect(() => {
+    // Skip if loading more OR restoring scroll
+    if (isLoadingMore || isRestoringScroll.current) {
+      return;
+    }
+
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    // Only scroll to bottom for initial load or new messages
+    const currentCount = messages.length;
+    const hasNewMessages = currentCount > previousMessageCount.current;
+    previousMessageCount.current = currentCount;
+
+    if (messagesEndRef.current && (isInitialLoad || hasNewMessages)) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: "instant",
+      });
+
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
+    }
+  }, [messages, isInitialLoad, isLoadingMore]);
 
   // Mark conversation as read when opened
   useEffect(() => {
-    if (selectedConversationId && currentConversation && currentConversation.unreadCount > 0) {
+    if (
+      selectedConversationId &&
+      currentConversation &&
+      currentConversation.unreadCount > 0
+    ) {
       markConversationAsRead();
     }
   }, [selectedConversationId, currentConversation, markConversationAsRead]);
@@ -77,15 +193,24 @@ export default function MessagesPage() {
     setSelectedConversationId(conversationId);
     setShowMobileChat(true);
     setReplyingTo(null);
+    setIsInitialLoad(true);
+    setIsLoadingMore(false);
+    previousMessageCount.current = 0;
+    scrollRestoreData.current = null;
   };
 
   const handleBackToList = () => {
     setShowMobileChat(false);
     setSelectedConversationId(null);
     setReplyingTo(null);
+    setIsLoadingMore(false);
   };
 
-  const handleSendMessage = (content: string, type?: string, parentId?: string) => {
+  const handleSendMessage = (
+    content: string,
+    type?: string,
+    parentId?: string
+  ) => {
     sendMessage(content, type, parentId);
   };
 
@@ -97,8 +222,41 @@ export default function MessagesPage() {
     setReplyingTo(null);
   };
 
+  const handleLoadMore = async () => {
+    const container = scrollContainerRef.current;
+    if (!container || messages.length === 0) return;
+
+    // Save exact scroll state
+    scrollRestoreData.current = {
+      oldHeight: container.scrollHeight,
+      oldScrollTop: container.scrollTop,
+      oldCount: messages.length,
+    };
+
+    // Block all auto-scroll
+    setIsLoadingMore(true);
+
+    try {
+      await loadMore();
+    } catch (error) {
+      setIsLoadingMore(false);
+      scrollRestoreData.current = null;
+    }
+  };
+
   const getOtherUser = (conversation: ConversationResponse) => {
     return conversation.sender;
+  };
+
+  // Helper to check if two dates are on different days
+  const isSameDay = (date1: string, date2: string) => {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
   };
 
   if (!user) {
@@ -116,11 +274,11 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="flex h-full bg-background">
+    <div className="flex h-full w-full bg-background overflow-hidden">
       {/* Conversation List - Desktop always visible, Mobile conditional */}
       <div
         className={cn(
-          "w-full md:w-80 lg:w-96 border-r flex-shrink-0 h-full bg-muted/30",
+          "w-full md:w-80 lg:w-96 border-r flex-shrink-0 h-full bg-muted/30 overflow-hidden",
           showMobileChat ? "hidden md:flex" : "flex"
         )}
       >
@@ -136,7 +294,7 @@ export default function MessagesPage() {
       {/* Chat Area */}
       <div
         className={cn(
-          "flex-1 flex flex-col h-full max-h-full",
+          "flex-1 flex flex-col h-full max-h-full overflow-hidden",
           !showMobileChat && !selectedConversationId ? "hidden md:flex" : "flex"
         )}
       >
@@ -159,27 +317,30 @@ export default function MessagesPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={getOtherUser(currentConversation)?.avatar} />
+                      <AvatarImage
+                        src={getOtherUser(currentConversation)?.avatar}
+                      />
                       <AvatarFallback>
-                        {getOtherUser(currentConversation)?.full_name?.charAt(0) ||
-                         getOtherUser(currentConversation)?.username?.charAt(0) || "U"}
+                        {getOtherUser(currentConversation)?.full_name?.charAt(
+                          0
+                        ) ||
+                          getOtherUser(currentConversation)?.username?.charAt(
+                            0
+                          ) ||
+                          "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <OnlineStatus 
-                      userId={getOtherUser(currentConversation)?._id}
-                      isOnline={getOtherUser(currentConversation)?.status || false}
-                      size="sm"
-                      className="absolute -bottom-0.5 -right-0.5"
-                    />
                   </div>
                   <div>
                     <h3 className="font-semibold">
                       {getOtherUser(currentConversation)?.full_name ||
-                       getOtherUser(currentConversation)?.username}
+                        getOtherUser(currentConversation)?.username}
                     </h3>
-                    <OnlineStatus 
+                    <OnlineStatus
                       userId={getOtherUser(currentConversation)?._id}
-                      isOnline={getOtherUser(currentConversation)?.status || false}
+                      isOnline={
+                        getOtherUser(currentConversation)?.status || false
+                      }
                       showText={true}
                       size="sm"
                     />
@@ -224,60 +385,80 @@ export default function MessagesPage() {
 
             {/* Messages Area */}
             <div className="flex-1 overflow-hidden bg-muted/20">
-              <ScrollArea className="h-full px-4 py-6">
+              <div
+                ref={scrollContainerRef}
+                className="h-full overflow-y-auto px-4 py-6"
+                style={{ scrollBehavior: isLoadingMore ? "auto" : "smooth" }}
+              >
                 <div className="space-y-3 max-w-4xl mx-auto">
-                {/* Load more button */}
-                {hasMore && (
-                  <div className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={loadMore}
-                      disabled={messagesLoading}
-                    >
-                      {messagesLoading ? "Đang tải..." : "Tải thêm tin nhắn"}
-                    </Button>
-                  </div>
-                )}
+                  {/* Load more button */}
+                  {hasMore && (
+                    <div className="text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLoadMore}
+                        disabled={messagesLoading || isLoadingMore}
+                      >
+                        {messagesLoading || isLoadingMore
+                          ? "Đang tải..."
+                          : "Tải thêm tin nhắn"}
+                      </Button>
+                    </div>
+                  )}
 
-                {/* Messages */}
-                {messages.map((message, index) => {
-                  const isOwn = message.sender_id === user.id;
-                  const showAvatar = !isOwn && (
-                    index === 0 || 
-                    messages[index - 1]?.sender_id !== message.sender_id
-                  );
-                  const showTime = 
-                    index === messages.length - 1 ||
-                    messages[index + 1]?.sender_id !== message.sender_id ||
-                    (new Date(messages[index + 1]?.created_at).getTime() - 
-                     new Date(message.created_at).getTime()) > 5 * 60 * 1000; // 5 minutes
+                  {/* Messages */}
+                  {messages.map((message, index) => {
+                    const isOwn = message.sender_id === user.id;
+                    const showAvatar =
+                      !isOwn &&
+                      (index === 0 ||
+                        messages[index - 1]?.sender_id !== message.sender_id);
+                    const showTime =
+                      index === messages.length - 1 ||
+                      messages[index + 1]?.sender_id !== message.sender_id ||
+                      new Date(messages[index + 1]?.created_at).getTime() -
+                        new Date(message.created_at).getTime() >
+                        5 * 60 * 1000; // 5 minutes
 
-                  return (
-                    <MessageBubble
-                      key={message._id}
-                      message={message}
-                      isOwn={isOwn}
-                      showAvatar={showAvatar}
-                      showTime={showTime}
-                      onReply={handleReply}
-                    />
-                  );
-                })}
+                    // Show date separator if this is first message or day changed
+                    const showDateSeparator =
+                      index === 0 ||
+                      !isSameDay(
+                        message.created_at,
+                        messages[index - 1].created_at
+                      );
 
-                {/* Typing indicator */}
-                <TypingIndicator 
-                  users={typingUsers.map(userId => ({
-                    id: userId,
-                    name: getOtherUser(currentConversation)?.full_name || "User",
-                    avatar: getOtherUser(currentConversation)?.avatar
-                  }))}
-                />
+                    return (
+                      <div key={message._id}>
+                        {showDateSeparator && (
+                          <DateSeparator date={message.created_at} />
+                        )}
+                        <MessageBubble
+                          message={message}
+                          isOwn={isOwn}
+                          showAvatar={showAvatar}
+                          showTime={showTime}
+                          onReply={handleReply}
+                        />
+                      </div>
+                    );
+                  })}
 
-                {/* Scroll anchor */}
-                <div ref={messagesEndRef} />
+                  {/* Typing indicator */}
+                  <TypingIndicator
+                    users={typingUsers.map((userId) => ({
+                      id: userId,
+                      name:
+                        getOtherUser(currentConversation)?.full_name || "User",
+                      avatar: getOtherUser(currentConversation)?.avatar,
+                    }))}
+                  />
+
+                  {/* Scroll anchor */}
+                  <div ref={messagesEndRef} />
                 </div>
-              </ScrollArea>
+              </div>
             </div>
 
             {/* Message Input */}
@@ -297,7 +478,9 @@ export default function MessagesPage() {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <MessageCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-xl font-semibold mb-2">Chọn một cuộc trò chuyện</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                Chọn một cuộc trò chuyện
+              </h2>
               <p className="text-muted-foreground">
                 Chọn một cuộc trò chuyện từ danh sách để bắt đầu nhắn tin
               </p>
