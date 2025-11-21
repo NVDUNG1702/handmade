@@ -35,7 +35,11 @@ export interface MessageSocketEvents {
   // Conversation events
   "join:conversation": (data: any) => void;
   "leave:conversation": (data: any) => void;
-  "conversation:read": (data: any) => void;
+  "conversation:read": (data: {
+    conversationId: string;
+    userId: string;
+    updatedCount: number;
+  }) => void;
 
   // Notification events
   "notification:new": (data: {
@@ -216,6 +220,12 @@ class MessageSocketService extends EventEmitter {
       this.socket.on("message:read", (data: WebSocketReadEvent) => {
         console.log("📥 [WS] Received message:read:", data);
         this.emit("message:read", data);
+      });
+
+      // Listen for conversation read event
+      this.socket.on("conversation:read", (data: any) => {
+        console.log("📥 [WS] Received conversation:read:", data);
+        this.emit("conversation:read", data);
       });
 
       // Listen for presence events

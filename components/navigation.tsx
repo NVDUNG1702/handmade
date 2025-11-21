@@ -36,6 +36,7 @@ import { clearTokens } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useUser } from "@/hooks/use-user";
+import { useUnreadCount } from "@/lib/message-store";
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -46,6 +47,7 @@ export function Navigation() {
   const router = useRouter();
   const { mounted, authed } = useAuth();
   const { user } = useUser();
+  const unreadMessageCount = useUnreadCount();
 
   console.log(user);
 
@@ -161,9 +163,11 @@ export function Navigation() {
                 >
                   <Link href="/messages">
                     <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0 animate-pulse">
-                      3
-                    </Badge>
+                    {unreadMessageCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 min-w-5 h-5 px-1 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0 animate-pulse">
+                        {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                      </Badge>
+                    )}
                   </Link>
                 </Button>
 
@@ -175,9 +179,12 @@ export function Navigation() {
                 >
                   <Link href="/notifications">
                     <Bell className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-all" />
-                    <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0 animate-pulse">
-                      5
-                    </Badge>
+                    {/* TODO: Connect with notification store */}
+                    {false && (
+                      <Badge className="absolute -top-1 -right-1 min-w-5 h-5 px-1 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0 animate-pulse">
+                        0
+                      </Badge>
+                    )}
                   </Link>
                 </Button>
               </>
@@ -459,9 +466,11 @@ export function Navigation() {
                     <Link href="/messages">
                       <MessageSquare className="w-4 h-4 mr-3" />
                       Tin nhắn
-                      <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">
-                        3
-                      </Badge>
+                      {unreadMessageCount > 0 && (
+                        <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">
+                          {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                        </Badge>
+                      )}
                     </Link>
                   </Button>
 
@@ -474,9 +483,7 @@ export function Navigation() {
                     <Link href="/notifications">
                       <Bell className="w-4 h-4 mr-3" />
                       Thông báo
-                      <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">
-                        5
-                      </Badge>
+                      {/* TODO: Connect with notification store */}
                     </Link>
                   </Button>
                 </>

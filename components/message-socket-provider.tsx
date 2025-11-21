@@ -145,7 +145,26 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const handleMessageRead = (data: any) => {
       console.log("📥 [MessageSocket] Message read:", data);
-      // Handle message read status update
+      // Invalidate conversations to update unread count
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    };
+
+    const handleConversationRead = (data: any) => {
+      console.log("📥 [MessageSocket] Conversation read:", data);
+
+      // Clear unread messages for this conversation in store
+      if (data.conversationId) {
+        useMessageStore.getState().markConversationAsRead(data.conversationId);
+      }
+
+      // Invalidate conversations to update unread count
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      // Also invalidate messages for that conversation
+      if (data.conversationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["messages", data.conversationId],
+        });
+      }
     };
 
     const handleUserOnline = (data: any) => {
@@ -233,6 +252,7 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     messageSocket.on("message:typing:start", handleTypingStart);
     messageSocket.on("message:typing:stop", handleTypingStop);
     messageSocket.on("message:read", handleMessageRead);
+    messageSocket.on("conversation:read", handleConversationRead);
     messageSocket.on("user:online", handleUserOnline);
     messageSocket.on("user:offline", handleUserOffline);
     messageSocket.on("presence:update", handlePresenceUpdate);
@@ -244,6 +264,7 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       messageSocket.off("message:typing:start", handleTypingStart);
       messageSocket.off("message:typing:stop", handleTypingStop);
       messageSocket.off("message:read", handleMessageRead);
+      messageSocket.off("conversation:read", handleConversationRead);
       messageSocket.off("user:online", handleUserOnline);
       messageSocket.off("user:offline", handleUserOffline);
       messageSocket.off("presence:update", handlePresenceUpdate);

@@ -352,11 +352,20 @@ export const useMessages = (conversationId: string | null) => {
   // Đánh dấu conversation đã đọc
   const markConversationAsRead = useCallback(() => {
     if (!conversationId) return;
-    try {
-      messageSocket.markConversationAsRead(conversationId);
-    } catch {
-      markConversationAsReadMutation.mutate(conversationId);
-    }
+
+    // Join conversation first to ensure we're in the room
+    messageSocket.joinConversation(conversationId);
+
+    // Then mark as read
+    setTimeout(() => {
+      try {
+        messageSocket.markConversationAsRead(conversationId);
+      } catch (error) {
+        console.error("Failed to mark conversation as read via socket:", error);
+        // Fallback to API call
+        markConversationAsReadMutation.mutate(conversationId);
+      }
+    }, 100);
   }, [conversationId, markConversationAsReadMutation]);
 
   // Typing handlers

@@ -194,16 +194,29 @@ export default function MessagesPage() {
     }
   }, [messages, isInitialLoad, isLoadingMore]);
 
-  // Mark conversation as read when opened
+  // Mark conversation as read when opened and messages loaded
   useEffect(() => {
     if (
       selectedConversationId &&
       currentConversation &&
-      currentConversation.unreadCount > 0
+      currentConversation.unreadCount > 0 &&
+      messages.length > 0 &&
+      !messagesLoading
     ) {
-      markConversationAsRead();
+      // Wait a bit to ensure all messages are rendered
+      const timer = setTimeout(() => {
+        markConversationAsRead();
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
-  }, [selectedConversationId, currentConversation, markConversationAsRead]);
+  }, [
+    selectedConversationId,
+    currentConversation,
+    messages.length,
+    messagesLoading,
+    markConversationAsRead,
+  ]);
 
   const handleSelectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId);
