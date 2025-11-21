@@ -55,6 +55,8 @@ export const useMessages = (conversationId: string | null) => {
     // Handle new messages
     const handleNewMessage = (data: any) => {
       if (data.message.conversation_id === conversationId) {
+        const isOwnMessage = data.message.sender_id === user?.id;
+
         // Replace temp message if exists
         const tempIndex = currentMessages.findIndex(
           (m) =>
@@ -71,6 +73,7 @@ export const useMessages = (conversationId: string | null) => {
           );
           if (!exists) {
             addMessage(data.message);
+            // Global notification is handled by MessageSocketProvider
           }
         }
       }
@@ -308,11 +311,20 @@ export const useMessages = (conversationId: string | null) => {
           // Replace temp message with server response
           const serverMsg = response.data;
           updateMessage(tempId, serverMsg);
+        } else {
+          // Remove temp message on non-success response
+          const updatedMessages = currentMessages.filter(
+            (m) => m._id !== tempId
+          );
+          setCurrentMessages(updatedMessages);
+          throw new Error(response?.message || "Failed to send message");
         }
       } catch (e) {
         // Remove temp message on error
         const updatedMessages = currentMessages.filter((m) => m._id !== tempId);
         setCurrentMessages(updatedMessages);
+        // Re-throw to propagate error to UI
+        throw e;
       }
     },
     [

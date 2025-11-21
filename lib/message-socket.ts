@@ -26,12 +26,30 @@ export interface MessageSocketEvents {
   // Presence events
   "user:online": (data: { userId: string; timestamp: string }) => void;
   "user:offline": (data: { userId: string; lastSeen: string }) => void;
-  "presence:update": (data: { userId: string; isOnline: boolean; lastSeen?: string }) => void;
+  "presence:update": (data: {
+    userId: string;
+    isOnline: boolean;
+    lastSeen?: string;
+  }) => void;
 
   // Conversation events
   "join:conversation": (data: any) => void;
   "leave:conversation": (data: any) => void;
   "conversation:read": (data: any) => void;
+
+  // Notification events
+  "notification:new": (data: {
+    type?: "info" | "success" | "error" | "warning";
+    title?: string;
+    message?: string;
+    description?: string;
+    priority?: "low" | "normal" | "high";
+    duration?: number;
+    action_url?: string;
+    action_label?: string;
+    icon?: string;
+    invalidate_queries?: string[][];
+  }) => void;
 
   // Auth events
   auth_error: (data: any) => void;
@@ -84,7 +102,7 @@ class MessageSocketService extends EventEmitter {
       this.socket.on("connect", () => {
         console.log("🔌 [WS] Connected to message socket", this.socket?.id);
         this.reconnectAttempts = 0;
-        
+
         // Re-join previously joined rooms after reconnect
         for (const conversationId of this.joinedConversationIds) {
           console.log("🔄 [WS] Re-joining conversation:", conversationId);
@@ -165,15 +183,33 @@ class MessageSocketService extends EventEmitter {
         this.emit("new:message", data);
       });
 
-      // Listen for typing events
-      this.socket.on("message:typing:start", (data: WebSocketTypingEvent) => {
+      // Listen for typing events - BE emits "typing:start" and "typing:stop"
+      this.socket.on("typing:start", (data: any) => {
         console.log("📥 [WS] Received typing:start:", data);
-        this.emit("message:typing:start", data);
+
+        // BE sends: { userId, roomId: "conversation:xxx" }
+        // FE needs: { userId, conversationId: "xxx" }
+        const conversationId =
+          data.roomId?.replace("conversation:", "") || data.conversationId;
+
+        this.emit("message:typing:start", {
+          userId: data.userId,
+          conversationId: conversationId,
+        });
       });
 
-      this.socket.on("message:typing:stop", (data: WebSocketTypingEvent) => {
+      this.socket.on("typing:stop", (data: any) => {
         console.log("📥 [WS] Received typing:stop:", data);
-        this.emit("message:typing:stop", data);
+
+        // BE sends: { userId, roomId: "conversation:xxx" }
+        // FE needs: { userId, conversationId: "xxx" }
+        const conversationId =
+          data.roomId?.replace("conversation:", "") || data.conversationId;
+
+        this.emit("message:typing:stop", {
+          userId: data.userId,
+          conversationId: conversationId,
+        });
       });
 
       // Listen for read events
@@ -197,6 +233,12 @@ class MessageSocketService extends EventEmitter {
         console.log("📥 [WS] Presence update:", data);
         this.emit("presence:update", data);
       });
+
+      // Listen for general notifications
+      this.socket.on("notification:new", (data: any) => {
+        console.log("📥 [WS] New notification:", data);
+        this.emit("notification:new", data);
+      });
     });
   }
 
@@ -214,7 +256,8 @@ class MessageSocketService extends EventEmitter {
   private handleReconnect(): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts && this.token) {
       this.reconnectAttempts++;
-      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+      const delay =
+        this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
       setTimeout(() => {
         console.log(
@@ -307,18 +350,34 @@ class MessageSocketService extends EventEmitter {
 
   // Start typing
   startTyping(conversationId: string): void {
-    if (this.socket?.connected) {
-      console.log("📤 [WS] Emitting message:typing:start:", conversationId);
-      this.socket.emit("message:typing:start", { conversationId });
+    if (!this.socket) {
+      console.warn("⚠️ [WS] Socket not initialized");
+      return;
     }
+
+    console.log(
+      "📤 [WS] Emitting message:typing:start:",
+      conversationId,
+      "connected:",
+      this.socket.connected
+    );
+    this.socket.emit("message:typing:start", { conversationId });
   }
 
   // Stop typing
   stopTyping(conversationId: string): void {
-    if (this.socket?.connected) {
-      console.log("📤 [WS] Emitting message:typing:stop:", conversationId);
-      this.socket.emit("message:typing:stop", { conversationId });
+    if (!this.socket) {
+      console.warn("⚠️ [WS] Socket not initialized");
+      return;
     }
+
+    console.log(
+      "📤 [WS] Emitting message:typing:stop:",
+      conversationId,
+      "connected:",
+      this.socket.connected
+    );
+    this.socket.emit("message:typing:stop", { conversationId });
   }
 
   // Mark message as read
@@ -337,14 +396,12 @@ class MessageSocketService extends EventEmitter {
     }
   }
 
-  // Event listeners
+  // Event listeners - use EventEmitter methods instead of socket directly
   on<K extends keyof MessageSocketEvents>(
     event: K,
     listener: MessageSocketEvents[K]
   ): this {
-    if (this.socket) {
-      this.socket.on(event, listener as any);
-    }
+    super.on(event, listener as any);
     return this;
   }
 
@@ -352,12 +409,10 @@ class MessageSocketService extends EventEmitter {
     event: K,
     listener?: MessageSocketEvents[K]
   ): this {
-    if (this.socket) {
-      if (listener) {
-        this.socket.off(event, listener as any);
-      } else {
-        this.socket.off(event);
-      }
+    if (listener) {
+      super.off(event, listener as any);
+    } else {
+      super.removeAllListeners(event);
     }
     return this;
   }
@@ -366,9 +421,7 @@ class MessageSocketService extends EventEmitter {
     event: K,
     listener: MessageSocketEvents[K]
   ): this {
-    if (this.socket) {
-      this.socket.once(event, listener as any);
-    }
+    super.once(event, listener as any);
     return this;
   }
 }

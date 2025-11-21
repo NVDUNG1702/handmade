@@ -14,7 +14,6 @@ import { useMessages, useConversations } from "@/hooks/use-messages";
 import { ConversationList } from "@/components/messages/conversation-list";
 import { MessageBubble } from "@/components/messages/message-bubble";
 import { MessageInput } from "@/components/messages/message-input";
-import { TypingIndicator } from "@/components/messages/typing-indicator";
 import { OnlineStatus } from "@/components/messages/online-status";
 import { DateSeparator } from "@/components/messages/date-separator";
 import { Button } from "@/components/ui/button";
@@ -42,9 +41,13 @@ import type {
   MessageResponse,
   ConversationResponse,
 } from "@/lib/types-message";
+import { useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
@@ -81,6 +84,22 @@ export default function MessagesPage() {
   const currentConversation = conversations.find(
     (conv) => conv._id === selectedConversationId
   );
+
+  // Handle conversation from URL params (from notification)
+  useEffect(() => {
+    const conversationParam = searchParams.get("conversation");
+    if (conversationParam && conversationParam !== selectedConversationId) {
+      // Invalidate queries to fetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({
+        queryKey: ["messages", conversationParam],
+      });
+
+      // Set selected conversation
+      setSelectedConversationId(conversationParam);
+      setShowMobileChat(true);
+    }
+  }, [searchParams, selectedConversationId, queryClient]);
 
   // Restore scroll position after loading more
   useEffect(() => {
@@ -445,16 +464,6 @@ export default function MessagesPage() {
                     );
                   })}
 
-                  {/* Typing indicator */}
-                  <TypingIndicator
-                    users={typingUsers.map((userId) => ({
-                      id: userId,
-                      name:
-                        getOtherUser(currentConversation)?.full_name || "User",
-                      avatar: getOtherUser(currentConversation)?.avatar,
-                    }))}
-                  />
-
                   {/* Scroll anchor */}
                   <div ref={messagesEndRef} />
                 </div>
@@ -470,6 +479,11 @@ export default function MessagesPage() {
                 replyingTo={replyingTo}
                 onCancelReply={handleCancelReply}
                 disabled={messagesLoading}
+                typingUsers={typingUsers.map((userId) => ({
+                  id: userId,
+                  name: getOtherUser(currentConversation)?.full_name || "User",
+                  avatar: getOtherUser(currentConversation)?.avatar,
+                }))}
               />
             </div>
           </>
