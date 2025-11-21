@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useUser } from "@/hooks/use-user";
 import { useUnreadCount } from "@/lib/message-store";
+import { useUnreadCount as useNotificationUnreadCount } from "@/hooks/use-notifications";
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,8 +49,8 @@ export function Navigation() {
   const { mounted, authed } = useAuth();
   const { user } = useUser();
   const unreadMessageCount = useUnreadCount();
-
-  console.log(user);
+  const { data: notificationData } = useNotificationUnreadCount();
+  const unreadNotificationCount = notificationData?.unread_count || 0;
 
   const userRoles = {
     isWorker: true,
@@ -179,10 +180,11 @@ export function Navigation() {
                 >
                   <Link href="/notifications">
                     <Bell className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-all" />
-                    {/* TODO: Connect with notification store */}
-                    {false && (
+                    {unreadNotificationCount > 0 && (
                       <Badge className="absolute -top-1 -right-1 min-w-5 h-5 px-1 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0 animate-pulse">
-                        0
+                        {unreadNotificationCount > 99
+                          ? "99+"
+                          : unreadNotificationCount}
                       </Badge>
                     )}
                   </Link>
@@ -483,7 +485,13 @@ export function Navigation() {
                     <Link href="/notifications">
                       <Bell className="w-4 h-4 mr-3" />
                       Thông báo
-                      {/* TODO: Connect with notification store */}
+                      {unreadNotificationCount > 0 && (
+                        <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">
+                          {unreadNotificationCount > 99
+                            ? "99+"
+                            : unreadNotificationCount}
+                        </Badge>
+                      )}
                     </Link>
                   </Button>
                 </>

@@ -41,7 +41,6 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     const connectSocket = async () => {
       try {
         await messageSocket.connect(token);
-        console.log("✅ [MessageSocket] Connected successfully");
       } catch (error) {
         console.error("❌ [MessageSocket] Connection failed:", error);
       }
@@ -51,7 +50,6 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Global message listeners
     const handleNewMessage = (data: any) => {
-      console.log("📥 [MessageSocket] New message received:", data);
       addUnreadMessage(data);
 
       // Check if message is not from current user
@@ -134,24 +132,19 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const handleTypingStart = (data: any) => {
-      console.log("📥 [MessageSocket] Typing start:", data);
       updateTypingUsers(data.conversationId, data.userId, true);
     };
 
     const handleTypingStop = (data: any) => {
-      console.log("📥 [MessageSocket] Typing stop:", data);
       updateTypingUsers(data.conversationId, data.userId, false);
     };
 
     const handleMessageRead = (data: any) => {
-      console.log("📥 [MessageSocket] Message read:", data);
       // Invalidate conversations to update unread count
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     };
 
     const handleConversationRead = (data: any) => {
-      console.log("📥 [MessageSocket] Conversation read:", data);
-
       // Clear unread messages for this conversation in store
       if (data.conversationId) {
         useMessageStore.getState().markConversationAsRead(data.conversationId);
@@ -168,24 +161,22 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const handleUserOnline = (data: any) => {
-      console.log("📥 [MessageSocket] User online:", data);
       // FE tự tạo timestamp khi nhận được event
       setUserOnline(data.userId, new Date().toISOString());
     };
 
     const handleUserOffline = (data: any) => {
-      console.log("📥 [MessageSocket] User offline:", data);
       // FE tự tạo timestamp khi nhận được event offline
       setUserOffline(data.userId, new Date().toISOString());
     };
 
     const handlePresenceUpdate = (data: any) => {
-      console.log("📥 [MessageSocket] Presence update:", data);
       updateUserPresence(data.userId, data.isOnline, data.lastSeen);
     };
 
     const handleNotification = (data: any) => {
-      console.log("📥 [MessageSocket] Notification:", data);
+      // Invalidate notification queries để cập nhật unread count và list
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
       // Map notification type to custom toast type
       const notificationType = data.type || "info";

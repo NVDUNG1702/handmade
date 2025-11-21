@@ -89,11 +89,6 @@ class MessageSocketService extends EventEmitter {
 
       this.token = token;
 
-      console.log(
-        "[WS] Connecting with token:",
-        token ? `${token.substring(0, 20)}...` : "null"
-      );
-
       this.socket = io(`${this.wsUrl}/realtime`, {
         auth: { token },
         withCredentials: true,
@@ -104,22 +99,17 @@ class MessageSocketService extends EventEmitter {
       });
 
       this.socket.on("connect", () => {
-        console.log("🔌 [WS] Connected to message socket", this.socket?.id);
         this.reconnectAttempts = 0;
 
         // Re-join previously joined rooms after reconnect
         for (const conversationId of this.joinedConversationIds) {
-          console.log("🔄 [WS] Re-joining conversation:", conversationId);
           this.socket?.emit("join:conversation", { conversationId });
         }
         resolve();
       });
 
       this.socket.on("join:conversation", (response) => {
-        console.log("📥 [WS] join:conversation response:", response);
-        if (response.success) {
-          console.log("✅ [WS] Joined conversation successfully");
-        } else {
+        if (!response.success) {
           console.error("❌ [WS] Failed to join conversation:", response.error);
         }
       });
@@ -144,9 +134,7 @@ class MessageSocketService extends EventEmitter {
       });
 
       this.socket.on("disconnect", (reason) => {
-        console.log("🔌 [WS] Disconnected:", reason);
         if (reason === "io server disconnect") {
-          console.log("🔄 [WS] Server disconnect, attempting reconnect...");
           this.handleReconnect();
         }
       });
