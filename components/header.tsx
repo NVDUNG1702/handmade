@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Sparkles,
   Menu,
@@ -22,24 +22,24 @@ import {
   Hammer,
   UserPlus,
   ShoppingBag,
-} from "lucide-react"
-import { useTheme } from "next-themes"
+} from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const userRoles = {
     isWorker: true,
     isStoreOwner: false,
-  }
+  };
 
   const navLinks = [
     { href: "/", label: "Trang chủ", icon: Home },
     { href: "/jobs", label: "Công việc", icon: Briefcase },
     { href: "/blogs", label: "Blog", icon: BookOpen },
-  ]
+  ];
 
   return (
     <header className="sticky top-0 z-50 glass-card border-b border-white/10">
@@ -59,7 +59,10 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
-                <Button variant="ghost" className="hover:bg-white/10 transition-colors">
+                <Button
+                  variant="ghost"
+                  className="hover:bg-white/10 transition-colors"
+                >
                   <link.icon className="w-4 h-4 mr-2" />
                   {link.label}
                 </Button>
@@ -75,13 +78,27 @@ export function Header() {
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="hover:bg-white/10 hidden md:flex"
+              aria-label={
+                theme === "dark"
+                  ? "Chuyển sang chế độ sáng"
+                  : "Chuyển sang chế độ tối"
+              }
             >
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {theme === "dark" ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </Button>
 
             {/* Messages */}
             <Link href="/messages">
-              <Button variant="ghost" size="icon" className="hover:bg-white/10 relative hidden md:flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-white/10 relative hidden md:flex"
+                aria-label="Tin nhắn"
+              >
                 <MessageSquare className="w-5 h-5" />
                 <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0">
                   3
@@ -91,7 +108,12 @@ export function Header() {
 
             {/* Notifications */}
             <Link href="/notifications">
-              <Button variant="ghost" size="icon" className="hover:bg-white/10 relative hidden md:flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-white/10 relative hidden md:flex"
+                aria-label="Thông báo"
+              >
                 <Bell className="w-5 h-5" />
                 <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-gradient-to-r from-primary to-accent text-white text-xs border-0">
                   5
@@ -110,23 +132,40 @@ export function Header() {
 
               {userMenuOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setUserMenuOpen(false)}
+                  />
                   <div className="absolute right-0 w-64 glass-card backdrop-filter backdrop-blur-sm bg-opacity-50 border-white/20 rounded-xl p-2 z-50 shadow-xl top-15">
                     <div className="p-3 border-b border-white/10 mb-2">
                       <p className="font-semibold">Nguyễn Văn A</p>
-                      <p className="text-sm text-muted-foreground">nguyenvana@example.com</p>
+                      <p className="text-sm text-muted-foreground">
+                        nguyenvana@example.com
+                      </p>
                     </div>
 
-                    <Link href="/profile/1" onClick={() => setUserMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                    <Link
+                      href="/profile/1"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-white/10"
+                      >
                         <User className="w-4 h-4 mr-2" />
                         Hồ sơ
                       </Button>
                     </Link>
 
                     {userRoles.isWorker && (
-                      <Link href="/dashboard/worker" onClick={() => setUserMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                      <Link
+                        href="/dashboard/worker"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start hover:bg-white/10"
+                        >
                           <Hammer className="w-4 h-4 mr-2" />
                           Quản lý thợ
                         </Button>
@@ -134,16 +173,28 @@ export function Header() {
                     )}
 
                     {userRoles.isStoreOwner && (
-                      <Link href="/dashboard/store" onClick={() => setUserMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                      <Link
+                        href="/dashboard/store"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start hover:bg-white/10"
+                        >
                           <Store className="w-4 h-4 mr-2" />
                           Quản lý cửa hàng
                         </Button>
                       </Link>
                     )}
 
-                    <Link href="/settings" onClick={() => setUserMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                    <Link
+                      href="/settings"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-white/10"
+                      >
                         <Settings className="w-4 h-4 mr-2" />
                         Cài đặt
                       </Button>
@@ -151,18 +202,32 @@ export function Header() {
 
                     {(!userRoles.isWorker || !userRoles.isStoreOwner) && (
                       <div className="border-t border-white/10 mt-2 pt-2">
-                        <p className="text-xs text-muted-foreground px-3 py-1 mb-1">Đăng ký</p>
+                        <p className="text-xs text-muted-foreground px-3 py-1 mb-1">
+                          Đăng ký
+                        </p>
                         {!userRoles.isWorker && (
-                          <Link href="/apply/worker" onClick={() => setUserMenuOpen(false)}>
-                            <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                          <Link
+                            href="/apply/worker"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start hover:bg-white/10"
+                            >
                               <UserPlus className="w-4 h-4 mr-2" />
                               Trở thành thợ
                             </Button>
                           </Link>
                         )}
                         {!userRoles.isStoreOwner && (
-                          <Link href="/apply/store" onClick={() => setUserMenuOpen(false)}>
-                            <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                          <Link
+                            href="/apply/store"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start hover:bg-white/10"
+                            >
                               <ShoppingBag className="w-4 h-4 mr-2" />
                               Mở cửa hàng
                             </Button>
@@ -172,8 +237,14 @@ export function Header() {
                     )}
 
                     <div className="border-t border-white/10 mt-2 pt-2">
-                      <Link href="/login" onClick={() => setUserMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start hover:bg-white/10 text-red-500">
+                      <Link
+                        href="/login"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start hover:bg-white/10 text-red-500"
+                        >
                           <LogOut className="w-4 h-4 mr-2" />
                           Đăng xuất
                         </Button>
@@ -190,8 +261,14 @@ export function Header() {
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden hover:bg-white/10"
+              aria-label={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -201,8 +278,15 @@ export function Header() {
           <div className="md:hidden py-4 border-t border-white/10">
             <nav className="space-y-2">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start hover:bg-white/10"
+                  >
                     <link.icon className="w-4 h-4 mr-2" />
                     {link.label}
                   </Button>
@@ -210,32 +294,57 @@ export function Header() {
               ))}
 
               <Link href="/messages" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start hover:bg-white/10"
+                >
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Tin nhắn
-                  <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">3</Badge>
+                  <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">
+                    3
+                  </Badge>
                 </Button>
               </Link>
 
-              <Link href="/notifications" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+              <Link
+                href="/notifications"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start hover:bg-white/10"
+                >
                   <Bell className="w-4 h-4 mr-2" />
                   Thông báo
-                  <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">5</Badge>
+                  <Badge className="ml-auto bg-gradient-to-r from-primary to-accent text-white border-0">
+                    5
+                  </Badge>
                 </Button>
               </Link>
 
               <div className="border-t border-white/10 pt-2 mt-2">
-                <Link href="/profile/1" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                <Link
+                  href="/profile/1"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start hover:bg-white/10"
+                  >
                     <User className="w-4 h-4 mr-2" />
                     Hồ sơ
                   </Button>
                 </Link>
 
                 {userRoles.isWorker && (
-                  <Link href="/dashboard/worker" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                  <Link
+                    href="/dashboard/worker"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start hover:bg-white/10"
+                    >
                       <Hammer className="w-4 h-4 mr-2" />
                       Quản lý thợ
                     </Button>
@@ -243,8 +352,14 @@ export function Header() {
                 )}
 
                 {userRoles.isStoreOwner && (
-                  <Link href="/dashboard/store" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                  <Link
+                    href="/dashboard/store"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start hover:bg-white/10"
+                    >
                       <Store className="w-4 h-4 mr-2" />
                       Quản lý cửa hàng
                     </Button>
@@ -252,7 +367,10 @@ export function Header() {
                 )}
 
                 <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start hover:bg-white/10"
+                  >
                     <Settings className="w-4 h-4 mr-2" />
                     Cài đặt
                   </Button>
@@ -263,25 +381,43 @@ export function Header() {
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   className="w-full justify-start hover:bg-white/10"
                 >
-                  {theme === "dark" ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                  {theme === "dark" ? (
+                    <Sun className="w-4 h-4 mr-2" />
+                  ) : (
+                    <Moon className="w-4 h-4 mr-2" />
+                  )}
                   {theme === "dark" ? "Chế độ sáng" : "Chế độ tối"}
                 </Button>
               </div>
 
               {(!userRoles.isWorker || !userRoles.isStoreOwner) && (
                 <div className="border-t border-white/10 pt-2 mt-2">
-                  <p className="text-xs text-muted-foreground px-3 py-1 mb-1">Đăng ký</p>
+                  <p className="text-xs text-muted-foreground px-3 py-1 mb-1">
+                    Đăng ký
+                  </p>
                   {!userRoles.isWorker && (
-                    <Link href="/apply/worker" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                    <Link
+                      href="/apply/worker"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-white/10"
+                      >
                         <UserPlus className="w-4 h-4 mr-2" />
                         Trở thành thợ
                       </Button>
                     </Link>
                   )}
                   {!userRoles.isStoreOwner && (
-                    <Link href="/apply/store" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start hover:bg-white/10">
+                    <Link
+                      href="/apply/store"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-white/10"
+                      >
                         <ShoppingBag className="w-4 h-4 mr-2" />
                         Mở cửa hàng
                       </Button>
@@ -292,7 +428,10 @@ export function Header() {
 
               <div className="border-t border-white/10 pt-2 mt-2">
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-white/10 text-red-500">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start hover:bg-white/10 text-red-500"
+                  >
                     <LogOut className="w-4 h-4 mr-2" />
                     Đăng xuất
                   </Button>
@@ -303,5 +442,5 @@ export function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }

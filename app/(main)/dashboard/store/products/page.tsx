@@ -1,18 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
-import Link from "next/link"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import Link from "next/link";
 
 export default function StoreProductsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   const products = [
     {
@@ -45,18 +58,26 @@ export default function StoreProductsPage() {
       status: "active",
       category: "Finished",
     },
-  ]
+  ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Đang bán</Badge>
+        return (
+          <Badge className="bg-green-500/20 text-green-500 border-green-500/30">
+            Đang bán
+          </Badge>
+        );
       case "out_of_stock":
-        return <Badge className="bg-red-500/20 text-red-500 border-red-500/30">Hết hàng</Badge>
+        return (
+          <Badge className="bg-red-500/20 text-red-500 border-red-500/30">
+            Hết hàng
+          </Badge>
+        );
       default:
-        return <Badge>Không xác định</Badge>
+        return <Badge>Không xác định</Badge>;
     }
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -66,7 +87,9 @@ export default function StoreProductsPage() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2">
               Quản lý sản phẩm
             </h1>
-            <p className="text-muted-foreground">Quản lý danh sách sản phẩm của cửa hàng</p>
+            <p className="text-muted-foreground">
+              Quản lý danh sách sản phẩm của cửa hàng
+            </p>
           </div>
           <Link href="/dashboard/store/products/add">
             <Button className="bg-gradient-to-r from-primary to-accent gap-2">
@@ -127,25 +150,48 @@ export default function StoreProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{product.category === "Finished" ? "Thành phẩm" : "Nguyên liệu"}</Badge>
+                    <Badge variant="outline">
+                      {product.category === "Finished"
+                        ? "Thành phẩm"
+                        : "Nguyên liệu"}
+                    </Badge>
                   </TableCell>
-                  <TableCell>{product.price.toLocaleString("vi-VN")}đ</TableCell>
+                  <TableCell>
+                    {product.price.toLocaleString("vi-VN")}đ
+                  </TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>{product.sold}</TableCell>
                   <TableCell>{getStatusBadge(product.status)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/dashboard/store/products/${product.id}`}>
-                        <Button variant="ghost" size="icon" className="hover:bg-accent/10">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hover:bg-accent/10"
+                          aria-label="Xem chi tiết"
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <Link href={`/dashboard/store/products/${product.id}/edit`}>
-                        <Button variant="ghost" size="icon" className="hover:bg-accent/10">
+                      <Link
+                        href={`/dashboard/store/products/${product.id}/edit`}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hover:bg-accent/10"
+                          aria-label="Chỉnh sửa"
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="icon" className="hover:bg-red-500/10 text-red-500">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-red-500/10 text-red-500"
+                        aria-label="Xóa sản phẩm"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -157,5 +203,5 @@ export default function StoreProductsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

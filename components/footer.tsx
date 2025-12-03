@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { Facebook, Instagram, Youtube, Mail } from "lucide-react"
+import Link from "next/link";
+import { Facebook, Instagram, Youtube, Mail } from "lucide-react";
 
 export function Footer() {
   const footerLinks = {
@@ -21,7 +21,7 @@ export function Footer() {
       { label: "Chính sách", href: "/privacy" },
       { label: "FAQ", href: "/faq" },
     ],
-  }
+  };
 
   return (
     <footer className="relative glass border-t border-border/50 mt-auto overflow-hidden">
@@ -29,7 +29,11 @@ export function Footer() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       <div className="absolute top-2 left-0 right-0 flex justify-center gap-8">
         {Array.from({ length: 20 }).map((_, i) => (
-          <div key={i} className="w-1 h-1 rounded-full bg-primary/10" style={{ opacity: 0.3 + (i % 3) * 0.2 }} />
+          <div
+            key={i}
+            className="w-1 h-1 rounded-full bg-primary/10"
+            style={{ opacity: 0.3 + (i % 3) * 0.2 }}
+          />
         ))}
       </div>
 
@@ -44,7 +48,9 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="relative w-10 h-10 rounded-xl gradient-bg-primary flex items-center justify-center">
-                <span className="text-xl font-bold text-primary-foreground">H</span>
+                <span className="text-xl font-bold text-primary-foreground">
+                  H
+                </span>
                 {/* Decorative corner accent */}
                 <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-accent/30 rounded-tr-lg" />
               </div>
@@ -52,12 +58,14 @@ export function Footer() {
             </div>
             {/* </CHANGE> */}
             <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-              Nền tảng kết nối nghệ nhân và khách hàng, xây dựng cộng đồng thủ công Việt Nam
+              Nền tảng kết nối nghệ nhân và khách hàng, xây dựng cộng đồng thủ
+              công Việt Nam
             </p>
             <div className="flex gap-2">
               <a
                 href="#"
                 className="relative w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-accent/10 transition-all duration-300 group"
+                aria-label="Facebook"
               >
                 <Facebook className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <div className="absolute inset-0 rounded-lg border border-primary/0 group-hover:border-primary/20 transition-colors" />
@@ -65,6 +73,7 @@ export function Footer() {
               <a
                 href="#"
                 className="relative w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-accent/10 transition-all duration-300 group"
+                aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <div className="absolute inset-0 rounded-lg border border-primary/0 group-hover:border-primary/20 transition-colors" />
@@ -72,6 +81,7 @@ export function Footer() {
               <a
                 href="#"
                 className="relative w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-accent/10 transition-all duration-300 group"
+                aria-label="Youtube"
               >
                 <Youtube className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <div className="absolute inset-0 rounded-lg border border-primary/0 group-hover:border-primary/20 transition-colors" />
@@ -79,6 +89,7 @@ export function Footer() {
               <a
                 href="#"
                 className="relative w-9 h-9 rounded-lg glass flex items-center justify-center hover:bg-accent/10 transition-all duration-300 group"
+                aria-label="Email"
               >
                 <Mail className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <div className="absolute inset-0 rounded-lg border border-primary/0 group-hover:border-primary/20 transition-colors" />
@@ -119,10 +130,12 @@ export function Footer() {
             <div className="w-2 h-2 rounded-full bg-primary/20" />
           </div>
 
-          <p className="text-center text-sm text-muted-foreground">© 2025 Handmade. Tất cả quyền được bảo lưu.</p>
+          <p className="text-center text-sm text-muted-foreground">
+            © 2025 Handmade. Tất cả quyền được bảo lưu.
+          </p>
         </div>
         {/* </CHANGE> */}
       </div>
     </footer>
-  )
+  );
 }

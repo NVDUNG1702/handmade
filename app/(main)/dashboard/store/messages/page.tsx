@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Search, Send, Paperclip, MoreVertical } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Search, Send, Paperclip, MoreVertical } from "lucide-react";
 
 export default function StoreMessagesPage() {
-  const [selectedChat, setSelectedChat] = useState(1)
-  const [message, setMessage] = useState("")
+  const [selectedChat, setSelectedChat] = useState(1);
+  const [message, setMessage] = useState("");
 
   const conversations = [
     {
@@ -40,7 +40,7 @@ export default function StoreMessagesPage() {
       unread: 1,
       online: true,
     },
-  ]
+  ];
 
   const messages = [
     {
@@ -67,7 +67,7 @@ export default function StoreMessagesPage() {
       content: "Có ạ, shop còn 3 cái màu nâu. Bạn đặt ngay nhé!",
       time: "10:30",
     },
-  ]
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,7 +75,9 @@ export default function StoreMessagesPage() {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2">
           Tin nhắn cửa hàng
         </h1>
-        <p className="text-muted-foreground">Trò chuyện với khách hàng của bạn</p>
+        <p className="text-muted-foreground">
+          Trò chuyện với khách hàng của bạn
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -110,9 +112,13 @@ export default function StoreMessagesPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <p className="font-medium truncate">{conv.name}</p>
-                        <span className="text-xs text-muted-foreground">{conv.time}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {conv.time}
+                        </span>
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {conv.lastMessage}
+                      </p>
                     </div>
                     {conv.unread > 0 && (
                       <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0">
@@ -139,21 +145,34 @@ export default function StoreMessagesPage() {
                   <p className="text-xs text-green-500">Đang hoạt động</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" aria-label="Tùy chọn khác">
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender === "store" ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={msg.id}
+                  className={`flex ${
+                    msg.sender === "store" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
                     className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                      msg.sender === "store" ? "bg-gradient-to-r from-primary to-accent text-white" : "bg-accent/10"
+                      msg.sender === "store"
+                        ? "bg-gradient-to-r from-primary to-accent text-white"
+                        : "bg-accent/10"
                     }`}
                   >
                     <p className="text-sm">{msg.content}</p>
-                    <p className={`text-xs mt-1 ${msg.sender === "store" ? "text-white/70" : "text-muted-foreground"}`}>
+                    <p
+                      className={`text-xs mt-1 ${
+                        msg.sender === "store"
+                          ? "text-white/70"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       {msg.time}
                     </p>
                   </div>
@@ -163,7 +182,7 @@ export default function StoreMessagesPage() {
 
             <div className="p-4 border-t border-white/10">
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="Đính kèm file">
                   <Paperclip className="w-4 h-4" />
                 </Button>
                 <Input
@@ -181,5 +200,5 @@ export default function StoreMessagesPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

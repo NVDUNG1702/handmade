@@ -1,41 +1,54 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { Clock, Eye, Heart, Share2, Bookmark, ArrowLeft, MessageSquare, ThumbsUp, Send } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import axiosInstance from "@/lib/axios-instance"
-import type { ApiResponse, BlogItem } from "@/lib/types"
-import { useParams } from "next/navigation"
+import { useEffect, useState, useMemo } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Clock,
+  Eye,
+  Heart,
+  Share2,
+  Bookmark,
+  ArrowLeft,
+  MessageSquare,
+  ThumbsUp,
+  Send,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import axiosInstance from "@/lib/axios-instance";
+import type { ApiResponse, BlogItem } from "@/lib/types";
+import { useParams } from "next/navigation";
+import DOMPurify from "dompurify";
 
 export default function BlogDetailPage() {
-  const params = useParams<{ id: string }>()
-  const [post, setPost] = useState<any | null>(null)
+  const params = useParams<{ id: string }>();
+  const [post, setPost] = useState<any | null>(null);
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
     const fetchDetail = async () => {
       try {
-        const res = await axiosInstance.get<ApiResponse<any>>(`/blogs/${params.id}`)
-        if (!mounted) return
-        
+        const res = await axiosInstance.get<ApiResponse<any>>(
+          `/blogs/${params.id}`
+        );
+        if (!mounted) return;
+
         // Handle flexible response structure
-        const responseData = res.data.data
+        const responseData = res.data.data;
         if (responseData && typeof responseData === "object") {
-          setPost(responseData)
+          setPost(responseData);
         } else {
-          setPost(null)
+          setPost(null);
         }
       } catch {}
-    }
-    if (params?.id) void fetchDetail()
+    };
+    if (params?.id) void fetchDetail();
     return () => {
-      mounted = false
-    }
-  }, [params?.id])
+      mounted = false;
+    };
+  }, [params?.id]);
 
   const relatedPosts = [
     {
@@ -50,14 +63,15 @@ export default function BlogDetailPage() {
       image: "/embroidery-logo.jpg",
       date: "5 ngày trước",
     },
-  ]
+  ];
 
   const comments = [
     {
       id: 1,
       author: "Trần Văn Nam",
       avatar: "",
-      content: "Bài viết rất hữu ích! Mình đang tìm hiểu về xu hướng handmade và bài này giúp mình rất nhiều.",
+      content:
+        "Bài viết rất hữu ích! Mình đang tìm hiểu về xu hướng handmade và bài này giúp mình rất nhiều.",
       date: "1 ngày trước",
       likes: 5,
     },
@@ -65,13 +79,44 @@ export default function BlogDetailPage() {
       id: 2,
       author: "Lê Thị Hoa",
       avatar: "",
-      content: "Cảm ơn tác giả đã chia sẻ. Mình rất thích phần về chất liệu thân thiện môi trường.",
+      content:
+        "Cảm ơn tác giả đã chia sẻ. Mình rất thích phần về chất liệu thân thiện môi trường.",
       date: "2 ngày trước",
       likes: 3,
     },
-  ]
+  ];
 
-  if (!post) return null
+  // Sanitize HTML content to prevent XSS attacks
+  const sanitizedContent = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    const rawContent = (post as any)?.content || post?.excerpt || "";
+    return DOMPurify.sanitize(rawContent, {
+      ALLOWED_TAGS: [
+        "p",
+        "br",
+        "strong",
+        "em",
+        "u",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "img",
+        "blockquote",
+        "code",
+        "pre",
+      ],
+      ALLOWED_ATTR: ["href", "src", "alt", "title", "class"],
+    });
+  }, [post]);
+
+  if (!post) return null;
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
@@ -88,36 +133,53 @@ export default function BlogDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Header */}
             <Card className="glass-card p-6 border-white/20">
-              <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/20 mb-4">
+              <Badge
+                variant="secondary"
+                className="bg-accent/10 text-accent border-accent/20 mb-4"
+              >
                 {(post as any).category || post.slug || "Blog"}
               </Badge>
-              <h1 className="text-4xl font-bold text-balance mb-4">{post.title}</h1>
+              <h1 className="text-4xl font-bold text-balance mb-4">
+                {post.title}
+              </h1>
 
               {/* Meta */}
               <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
                 <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  5 phút đọc
+                  <Clock className="w-4 h-4" />5 phút đọc
                 </span>
                 <span className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  {(post.views ?? 0)} lượt xem
+                  {post.views ?? 0} lượt xem
                 </span>
                 <span>{post.date}</span>
               </div>
 
               {/* Author */}
-                <div className="flex items-center justify-between p-4 rounded-xl bg-background/50 backdrop-blur-sm">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-background/50 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg">
-                    {((post as any).author?.name || post.author_name || "A").charAt(0)}
+                    {(
+                      (post as any).author?.name ||
+                      post.author_name ||
+                      "A"
+                    ).charAt(0)}
                   </div>
                   <div>
-                    <p className="font-semibold">{(post as any).author?.name || post.author_name || "Tác giả"}</p>
-                    <p className="text-sm text-muted-foreground">{(post as any).author?.bio || ""}</p>
+                    <p className="font-semibold">
+                      {(post as any).author?.name ||
+                        post.author_name ||
+                        "Tác giả"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {(post as any).author?.bio || ""}
+                    </p>
                   </div>
                 </div>
-                <Button variant="outline" className="border-white/20 glass-card bg-transparent">
+                <Button
+                  variant="outline"
+                  className="border-white/20 glass-card bg-transparent"
+                >
                   Theo dõi
                 </Button>
               </div>
@@ -126,13 +188,23 @@ export default function BlogDetailPage() {
             {/* Featured Image */}
             <Card className="glass-card border-white/20 overflow-hidden">
               <div className="relative h-96">
-                <Image src={(post as any).image || post.cover_url || "/placeholder.svg"} alt={post.title} fill className="object-cover" />
+                <Image
+                  src={
+                    (post as any).image || post.cover_url || "/placeholder.svg"
+                  }
+                  alt={post.title}
+                  fill
+                  className="object-cover"
+                />
               </div>
             </Card>
 
             {/* Content */}
-              <Card className="glass-card p-6 border-white/20">
-              <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: (post as any).content || post.excerpt || "" }} />
+            <Card className="glass-card p-6 border-white/20">
+              <div
+                className="prose prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+              />
             </Card>
 
             {/* Tags */}
@@ -140,7 +212,11 @@ export default function BlogDetailPage() {
               <h3 className="font-bold mb-3">Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="bg-primary/10 text-primary border-primary/20"
+                  >
                     #{tag}
                   </Badge>
                 ))}
@@ -151,20 +227,32 @@ export default function BlogDetailPage() {
             <Card className="glass-card p-6 border-white/20">
               <div className="flex items-center justify-between">
                 <div className="flex gap-3">
-                  <Button variant="outline" className="border-white/20 glass-card bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="border-white/20 glass-card bg-transparent"
+                  >
                     <Heart className="w-4 h-4 mr-2" />
                     {post.likes}
                   </Button>
-                  <Button variant="outline" className="border-white/20 glass-card bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="border-white/20 glass-card bg-transparent"
+                  >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     {post.comments}
                   </Button>
-                  <Button variant="outline" className="border-white/20 glass-card bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="border-white/20 glass-card bg-transparent"
+                  >
                     <Bookmark className="w-4 h-4 mr-2" />
                     {post.bookmarks}
                   </Button>
                 </div>
-                <Button variant="outline" className="border-white/20 glass-card bg-transparent">
+                <Button
+                  variant="outline"
+                  className="border-white/20 glass-card bg-transparent"
+                >
                   <Share2 className="w-4 h-4 mr-2" />
                   Chia sẻ
                 </Button>
@@ -173,11 +261,16 @@ export default function BlogDetailPage() {
 
             {/* Comments */}
             <Card className="glass-card p-6 border-white/20">
-              <h3 className="text-xl font-bold mb-6">Bình luận ({post.comments})</h3>
+              <h3 className="text-xl font-bold mb-6">
+                Bình luận ({post.comments})
+              </h3>
 
               {/* Comment Form */}
               <div className="mb-6">
-                <Textarea placeholder="Viết bình luận của bạn..." className="mb-3 glass-card border-white/20" />
+                <Textarea
+                  placeholder="Viết bình luận của bạn..."
+                  className="mb-3 glass-card border-white/20"
+                />
                 <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
                   <Send className="w-4 h-4 mr-2" />
                   Gửi bình luận
@@ -187,7 +280,10 @@ export default function BlogDetailPage() {
               {/* Comments List */}
               <div className="space-y-4">
                 {comments.map((comment) => (
-                  <Card key={comment.id} className="p-4 border-white/10 bg-background/50 backdrop-blur-sm">
+                  <Card
+                    key={comment.id}
+                    className="p-4 border-white/10 bg-background/50 backdrop-blur-sm"
+                  >
                     <div className="flex gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center text-white font-medium shrink-0">
                         {comment.author.charAt(0)}
@@ -196,14 +292,22 @@ export default function BlogDetailPage() {
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <p className="font-semibold">{comment.author}</p>
-                            <p className="text-xs text-muted-foreground">{comment.date}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {comment.date}
+                            </p>
                           </div>
-                          <Button size="sm" variant="ghost" className="hover:bg-white/10">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="hover:bg-white/10"
+                          >
                             <ThumbsUp className="w-4 h-4 mr-1" />
                             {comment.likes}
                           </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground">{comment.content}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {comment.content}
+                        </p>
                       </div>
                     </div>
                   </Card>
@@ -222,7 +326,9 @@ export default function BlogDetailPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">{post.author.name}</h3>
-                  <p className="text-sm text-muted-foreground">{post.author.bio}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {post.author.bio}
+                  </p>
                 </div>
                 <div className="flex justify-center gap-6 text-sm">
                   <div>
@@ -234,7 +340,9 @@ export default function BlogDetailPage() {
                     <p className="text-muted-foreground">Người theo dõi</p>
                   </div>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90">Theo dõi</Button>
+                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90">
+                  Theo dõi
+                </Button>
               </div>
             </Card>
 
@@ -258,7 +366,9 @@ export default function BlogDetailPage() {
                           <h4 className="font-medium text-sm mb-1 line-clamp-2 group-hover:text-primary transition-colors">
                             {related.title}
                           </h4>
-                          <p className="text-xs text-muted-foreground">{related.date}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {related.date}
+                          </p>
                         </div>
                       </div>
                     </Card>
@@ -270,5 +380,5 @@ export default function BlogDetailPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

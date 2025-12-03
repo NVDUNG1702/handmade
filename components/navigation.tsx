@@ -137,6 +137,7 @@ export function Navigation() {
               variant="ghost"
               size="icon"
               className="hover:bg-accent/10 hidden lg:flex relative group"
+              aria-label="Tìm kiếm"
             >
               <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </Button>
@@ -146,6 +147,11 @@ export function Navigation() {
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="hover:bg-accent/10 hidden md:flex relative group"
+              aria-label={
+                theme === "dark"
+                  ? "Chuyển sang chế độ sáng"
+                  : "Chuyển sang chế độ tối"
+              }
             >
               {theme === "dark" ? (
                 <Sun className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
@@ -161,6 +167,7 @@ export function Navigation() {
                   size="icon"
                   className="hover:bg-accent/10 relative hidden md:flex group"
                   asChild
+                  aria-label="Tin nhắn"
                 >
                   <Link href="/messages">
                     <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -177,6 +184,7 @@ export function Navigation() {
                   size="icon"
                   className="hover:bg-accent/10 relative hidden md:flex group"
                   asChild
+                  aria-label="Thông báo"
                 >
                   <Link href="/notifications">
                     <Bell className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-all" />
@@ -299,17 +307,30 @@ export function Navigation() {
                         </Button>
 
                         {userRoles.isWorker && (
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start hover:bg-accent/10 rounded-xl"
-                            asChild
-                            onClick={() => setUserMenuOpen(false)}
-                          >
-                            <Link href="/dashboard/worker">
-                              <Hammer className="w-4 h-4 mr-3" />
-                              Quản lý thợ
-                            </Link>
-                          </Button>
+                          <>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start hover:bg-accent/10 rounded-xl"
+                              asChild
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <Link href="/dashboard/worker">
+                                <Hammer className="w-4 h-4 mr-3" />
+                                Quản lý thợ
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start hover:bg-accent/10 rounded-xl"
+                              asChild
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <Link href="/dashboard/worker/applications">
+                                <Briefcase className="w-4 h-4 mr-3" />
+                                Đơn ứng tuyển
+                              </Link>
+                            </Button>
+                          </>
                         )}
 
                         {userRoles.isStoreOwner && (
@@ -429,6 +450,8 @@ export function Navigation() {
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden hover:bg-accent/10"
+              aria-label={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
                 <X className="w-5 h-5" />
@@ -511,17 +534,30 @@ export function Navigation() {
                   </Button>
 
                   {userRoles.isWorker && (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start hover:bg-accent/10 rounded-xl"
-                      asChild
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Link href="/dashboard/worker">
-                        <Hammer className="w-4 h-4 mr-3" />
-                        Quản lý thợ
-                      </Link>
-                    </Button>
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-accent/10 rounded-xl"
+                        asChild
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Link href="/dashboard/worker">
+                          <Hammer className="w-4 h-4 mr-3" />
+                          Quản lý thợ
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-accent/10 rounded-xl"
+                        asChild
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Link href="/dashboard/worker/applications">
+                          <Briefcase className="w-4 h-4 mr-3" />
+                          Đơn ứng tuyển
+                        </Link>
+                      </Button>
+                    </>
                   )}
 
                   {userRoles.isStoreOwner && (

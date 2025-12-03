@@ -5,6 +5,15 @@ export const API_CONSTANTS = {
   WS_URL: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000",
   REQUEST_TIMEOUT: 10000,
   ENDPOINTS: {
+    // Skills
+    SKILLS: {
+      LIST: "/skills",
+    },
+    // Locations
+    LOCATIONS: {
+      PROVINCES: "/locations/provinces",
+      WARDS: "/locations/wards",
+    },
     BLOGS: {
       LIST: "/blogs",
       DETAIL: "/blogs/:id",

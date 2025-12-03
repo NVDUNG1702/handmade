@@ -51,6 +51,43 @@ export interface MeResponse {
   unreadNotificationCount?: number;
 }
 
+// ===== NOTIFICATION TYPES =====
+export * from "./types-notification";
+
+// ===== SKILL TYPES =====
+export interface Skill {
+  _id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// ===== LOCATION TYPES =====
+export interface Province {
+  code: string;
+  name: string;
+  name_en?: string;
+  full_name?: string;
+  full_name_en?: string;
+  code_name?: string;
+}
+
+export interface Ward {
+  code: string;
+  name: string;
+  name_en?: string;
+  full_name?: string;
+  full_name_en?: string;
+  code_name?: string;
+  province_code: string;
+}
+
+export interface ProvinceListResponse extends ApiResponse<Province[]> {}
+export interface WardListResponse extends ApiResponse<Ward[]> {}
+
 // Job Request Types (matching backend JobRequestResponseDto)
 export interface JobRequestItem {
   id: string;

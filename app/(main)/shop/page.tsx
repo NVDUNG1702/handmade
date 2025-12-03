@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useRef, useLayoutEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useState, useRef, useLayoutEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Search,
   Filter,
@@ -33,9 +33,9 @@ import {
   CheckCircle2,
   Award,
   ChevronRight,
-} from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import {
   Pagination,
   PaginationContent,
@@ -44,92 +44,117 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ShopPage() {
-  const [mainView, setMainView] = useState<"products" | "stores">("products")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [cartCount, setCartCount] = useState(0)
-  const [showFilters, setShowFilters] = useState(false)
-  const [productType, setProductType] = useState<"all" | "finished" | "materials">("all")
-  const [priceRange, setPriceRange] = useState([0, 1000000])
-  const [maxDistance, setMaxDistance] = useState(10)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [minRating, setMinRating] = useState(0)
-  const [inStockOnly, setInStockOnly] = useState(false)
+  const [mainView, setMainView] = useState<"products" | "stores">("products");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const [productType, setProductType] = useState<
+    "all" | "finished" | "materials"
+  >("all");
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
+  const [maxDistance, setMaxDistance] = useState(10);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [minRating, setMinRating] = useState(0);
+  const [inStockOnly, setInStockOnly] = useState(false);
 
-  const [currentProductPage, setCurrentProductPage] = useState(1)
-  const [currentStorePage, setCurrentStorePage] = useState(1)
-  const [itemsPerPageProducts, setItemsPerPageProducts] = useState(9)
-  const [itemsPerPageStores, setItemsPerPageStores] = useState(9)
+  const [currentProductPage, setCurrentProductPage] = useState(1);
+  const [currentStorePage, setCurrentStorePage] = useState(1);
+  const [itemsPerPageProducts, setItemsPerPageProducts] = useState(9);
+  const [itemsPerPageStores, setItemsPerPageStores] = useState(9);
 
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
-  const [productIndicatorStyle, setProductIndicatorStyle] = useState({ left: 0, width: 0 })
-  const [mounted, setMounted] = useState(false)
-  const mainTabsRef = useRef<HTMLDivElement>(null)
-  const productTabsRef = useRef<HTMLDivElement>(null)
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const [productIndicatorStyle, setProductIndicatorStyle] = useState({
+    left: 0,
+    width: 0,
+  });
+  const [mounted, setMounted] = useState(false);
+  const mainTabsRef = useRef<HTMLDivElement>(null);
+  const productTabsRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const updateMainIndicator = () => {
       if (mainTabsRef.current) {
-        const activeButton = mainTabsRef.current.querySelector('[data-state="active"]') as HTMLElement
+        const activeButton = mainTabsRef.current.querySelector(
+          '[data-state="active"]'
+        ) as HTMLElement;
         if (activeButton) {
           setIndicatorStyle({
             left: activeButton.offsetLeft,
             width: activeButton.offsetWidth,
-          })
+          });
         }
       }
-    }
+    };
 
     // Small delay to ensure DOM is ready
     const timer = setTimeout(() => {
-      updateMainIndicator()
-      setMounted(true)
-    }, 0)
+      updateMainIndicator();
+      setMounted(true);
+    }, 0);
 
-    window.addEventListener("resize", updateMainIndicator)
+    window.addEventListener("resize", updateMainIndicator);
     return () => {
-      clearTimeout(timer)
-      window.removeEventListener("resize", updateMainIndicator)
-    }
-  }, [mainView])
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateMainIndicator);
+    };
+  }, [mainView]);
 
   useLayoutEffect(() => {
     const updateProductIndicator = () => {
       if (productTabsRef.current) {
-        const activeButton = productTabsRef.current.querySelector('[data-state="active"]') as HTMLElement
+        const activeButton = productTabsRef.current.querySelector(
+          '[data-state="active"]'
+        ) as HTMLElement;
         if (activeButton) {
           setProductIndicatorStyle({
             left: activeButton.offsetLeft,
             width: activeButton.offsetWidth,
-          })
+          });
         }
       }
-    }
+    };
 
     const timer = setTimeout(() => {
-      updateProductIndicator()
-    }, 0)
+      updateProductIndicator();
+    }, 0);
 
-    window.addEventListener("resize", updateProductIndicator)
+    window.addEventListener("resize", updateProductIndicator);
     return () => {
-      clearTimeout(timer)
-      window.removeEventListener("resize", updateProductIndicator)
-    }
-  }, [productType])
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateProductIndicator);
+    };
+  }, [productType]);
 
   const craftCategories = [
-    { id: "leather", name: "Da thủ công", icon: Scissors, color: "text-amber-500" },
-    { id: "knitting", name: "Đan len/móc", icon: Sparkle, color: "text-pink-500" },
+    {
+      id: "leather",
+      name: "Da thủ công",
+      icon: Scissors,
+      color: "text-amber-500",
+    },
+    {
+      id: "knitting",
+      name: "Đan len/móc",
+      icon: Sparkle,
+      color: "text-pink-500",
+    },
     { id: "embroidery", name: "Thêu", icon: Sparkle, color: "text-purple-500" },
     { id: "jewelry", name: "Trang sức", icon: Gem, color: "text-cyan-500" },
     { id: "woodwork", name: "Gỗ", icon: Hammer, color: "text-orange-500" },
     { id: "pottery", name: "Gốm sứ", icon: Palette, color: "text-blue-500" },
     { id: "painting", name: "Vẽ/Tranh", icon: Palette, color: "text-red-500" },
     { id: "sewing", name: "May vá", icon: Shirt, color: "text-green-500" },
-  ]
+  ];
 
   const products = [
     {
@@ -303,13 +328,14 @@ export default function ShopPage() {
       type: "materials",
       category: "jewelry",
     },
-  ]
+  ];
 
   const stores = [
     {
       id: 1,
       name: "Len Việt Store",
-      description: "Chuyên cung cấp len cao cấp và phụ kiện đan móc. Hơn 10 năm kinh nghiệm trong ngành.",
+      description:
+        "Chuyên cung cấp len cao cấp và phụ kiện đan móc. Hơn 10 năm kinh nghiệm trong ngành.",
       logo: "/yarn-store-logo.jpg",
       cover: "/colorful-yarn-balls-set.jpg",
       rating: 4.9,
@@ -328,7 +354,8 @@ export default function ShopPage() {
     {
       id: 2,
       name: "Da Thủ Công HN",
-      description: "Cung cấp da bò, da dê thật 100% và dụng cụ làm đồ da. Cam kết chất lượng tốt nhất.",
+      description:
+        "Cung cấp da bò, da dê thật 100% và dụng cụ làm đồ da. Cam kết chất lượng tốt nhất.",
       logo: "/leather-store-logo.jpg",
       cover: "/brown-leather-sheet.jpg",
       rating: 5.0,
@@ -347,7 +374,8 @@ export default function ShopPage() {
     {
       id: 3,
       name: "Leather Art Studio",
-      description: "Xưởng sản xuất và bán lẻ đồ da handmade cao cấp. Nhận đặt hàng theo yêu cầu.",
+      description:
+        "Xưởng sản xuất và bán lẻ đồ da handmade cao cấp. Nhận đặt hàng theo yêu cầu.",
       logo: "/leather-art-logo.jpg",
       cover: "/portfolio-leather-bag-1.jpg",
       rating: 5.0,
@@ -366,7 +394,8 @@ export default function ShopPage() {
     {
       id: 4,
       name: "Dụng Cụ Handmade",
-      description: "Siêu thị dụng cụ và phụ kiện handmade đa dạng. Giá cả phải chăng, chất lượng đảm bảo.",
+      description:
+        "Siêu thị dụng cụ và phụ kiện handmade đa dạng. Giá cả phải chăng, chất lượng đảm bảo.",
       logo: "/craft-tools-logo.jpg",
       cover: "/knitting-needles-set.jpg",
       rating: 4.8,
@@ -385,7 +414,8 @@ export default function ShopPage() {
     {
       id: 5,
       name: "Knit With Love",
-      description: "Cửa hàng đồ đan móc handmade. Mỗi sản phẩm đều được làm bằng tình yêu và tâm huyết.",
+      description:
+        "Cửa hàng đồ đan móc handmade. Mỗi sản phẩm đều được làm bằng tình yêu và tâm huyết.",
       logo: "/knitting-store-logo.jpg",
       cover: "/knitting-wool-scarf-tutorial.jpg",
       rating: 4.9,
@@ -404,7 +434,8 @@ export default function ShopPage() {
     {
       id: 6,
       name: "Phụ Kiện Handmade",
-      description: "Chuyên cung cấp phụ kiện làm trang sức, móc khóa, và đồ trang trí handmade.",
+      description:
+        "Chuyên cung cấp phụ kiện làm trang sức, móc khóa, và đồ trang trí handmade.",
       logo: "/accessories-logo.jpg",
       cover: "/wooden-beads-natural.jpg",
       rating: 4.7,
@@ -423,7 +454,8 @@ export default function ShopPage() {
     {
       id: 7,
       name: "Silver Craft",
-      description: "Xưởng chế tác trang sức bạc handmade. Thiết kế độc đáo, chất lượng cao cấp.",
+      description:
+        "Xưởng chế tác trang sức bạc handmade. Thiết kế độc đáo, chất lượng cao cấp.",
       logo: "/silver-craft-logo.jpg",
       cover: "/silver-charms-jewelry-making.jpg",
       rating: 5.0,
@@ -442,7 +474,8 @@ export default function ShopPage() {
     {
       id: 8,
       name: "Vải Handmade VN",
-      description: "Nhập khẩu và phân phối vải canvas, vải thô, vải cotton cho handmade. Giá sỉ lẻ tốt nhất.",
+      description:
+        "Nhập khẩu và phân phối vải canvas, vải thô, vải cotton cho handmade. Giá sỉ lẻ tốt nhất.",
       logo: "/fabric-store-logo.jpg",
       cover: "/colorful-canvas-fabric-rolls.jpg",
       rating: 4.9,
@@ -458,47 +491,73 @@ export default function ShopPage() {
       responseTime: "Trong vòng 2 giờ",
       openTime: "7:30 - 21:00",
     },
-  ]
+  ];
 
   const filteredProducts = products.filter((product) => {
-    if (productType !== "all" && product.type !== productType) return false
-    if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) return false
-    if (product.price < priceRange[0] || product.price > priceRange[1]) return false
-    if (product.distance > maxDistance) return false
-    if (product.rating < minRating) return false
-    if (inStockOnly && !product.inStock) return false
-    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    return true
-  })
+    if (productType !== "all" && product.type !== productType) return false;
+    if (
+      selectedCategories.length > 0 &&
+      !selectedCategories.includes(product.category)
+    )
+      return false;
+    if (product.price < priceRange[0] || product.price > priceRange[1])
+      return false;
+    if (product.distance > maxDistance) return false;
+    if (product.rating < minRating) return false;
+    if (inStockOnly && !product.inStock) return false;
+    if (
+      searchQuery &&
+      !product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+    return true;
+  });
 
   const filteredStores = stores.filter((store) => {
-    if (selectedCategories.length > 0 && !selectedCategories.some((cat) => store.specialties.includes(cat)))
-      return false
-    if (store.distance > maxDistance) return false
-    if (store.rating < minRating) return false
-    if (searchQuery && !store.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    return true
-  })
+    if (
+      selectedCategories.length > 0 &&
+      !selectedCategories.some((cat) => store.specialties.includes(cat))
+    )
+      return false;
+    if (store.distance > maxDistance) return false;
+    if (store.rating < minRating) return false;
+    if (
+      searchQuery &&
+      !store.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+    return true;
+  });
 
-  const totalProductPages = Math.ceil(filteredProducts.length / itemsPerPageProducts)
-  const startProductIndex = (currentProductPage - 1) * itemsPerPageProducts
-  const endProductIndex = startProductIndex + itemsPerPageProducts
-  const currentProducts = filteredProducts.slice(startProductIndex, endProductIndex)
+  const totalProductPages = Math.ceil(
+    filteredProducts.length / itemsPerPageProducts
+  );
+  const startProductIndex = (currentProductPage - 1) * itemsPerPageProducts;
+  const endProductIndex = startProductIndex + itemsPerPageProducts;
+  const currentProducts = filteredProducts.slice(
+    startProductIndex,
+    endProductIndex
+  );
 
-  const totalStorePages = Math.ceil(filteredStores.length / itemsPerPageStores)
-  const startStoreIndex = (currentStorePage - 1) * itemsPerPageStores
-  const endStoreIndex = startStoreIndex + itemsPerPageStores
-  const currentStores = filteredStores.slice(startStoreIndex, endStoreIndex)
+  const totalStorePages = Math.ceil(filteredStores.length / itemsPerPageStores);
+  const startStoreIndex = (currentStorePage - 1) * itemsPerPageStores;
+  const endStoreIndex = startStoreIndex + itemsPerPageStores;
+  const currentStores = filteredStores.slice(startStoreIndex, endStoreIndex);
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
-    )
-  }
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price)
-  }
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -546,7 +605,11 @@ export default function ShopPage() {
           </div>
         </div>
 
-        <Tabs value={mainView} onValueChange={(v) => setMainView(v as any)} className="w-full">
+        <Tabs
+          value={mainView}
+          onValueChange={(v) => setMainView(v as any)}
+          className="w-full"
+        >
           <TabsList
             className="grid w-full max-w-md mx-auto grid-cols-2 glass-card border-white/20 h-12 p-1 relative"
             ref={mainTabsRef}
@@ -577,7 +640,11 @@ export default function ShopPage() {
           </TabsList>
 
           <TabsContent value="products" className="space-y-6 mt-6">
-            <Tabs value={productType} onValueChange={(v) => setProductType(v as any)} className="w-full">
+            <Tabs
+              value={productType}
+              onValueChange={(v) => setProductType(v as any)}
+              className="w-full"
+            >
               <TabsList
                 className="grid w-full max-w-2xl mx-auto grid-cols-3 glass-card border-white/20 h-11 p-1 relative"
                 ref={productTabsRef}
@@ -629,9 +696,13 @@ export default function ShopPage() {
               >
                 <Filter className="w-4 h-4 mr-2" />
                 <span className="font-medium">Bộ lọc</span>
-                {(selectedCategories.length > 0 || minRating > 0 || inStockOnly) && (
+                {(selectedCategories.length > 0 ||
+                  minRating > 0 ||
+                  inStockOnly) && (
                   <Badge className="ml-2 bg-primary text-primary-foreground border-0 shadow-sm">
-                    {selectedCategories.length + (minRating > 0 ? 1 : 0) + (inStockOnly ? 1 : 0)}
+                    {selectedCategories.length +
+                      (minRating > 0 ? 1 : 0) +
+                      (inStockOnly ? 1 : 0)}
                   </Badge>
                 )}
               </Button>
@@ -650,6 +721,7 @@ export default function ShopPage() {
                       size="icon"
                       onClick={() => setShowFilters(false)}
                       className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="Đóng bộ lọc"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -657,16 +729,23 @@ export default function ShopPage() {
 
                   {/* Craft Categories */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-bold text-foreground">Ngành nghề thủ công</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Ngành nghề thủ công
+                    </Label>
                     <div className="space-y-2.5">
                       {craftCategories.map((category) => {
-                        const Icon = category.icon
+                        const Icon = category.icon;
                         return (
-                          <div key={category.id} className="flex items-center space-x-3 group">
+                          <div
+                            key={category.id}
+                            className="flex items-center space-x-3 group"
+                          >
                             <Checkbox
                               id={category.id}
                               checked={selectedCategories.includes(category.id)}
-                              onCheckedChange={() => toggleCategory(category.id)}
+                              onCheckedChange={() =>
+                                toggleCategory(category.id)
+                              }
                               className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
                             <Label
@@ -677,14 +756,16 @@ export default function ShopPage() {
                               {category.name}
                             </Label>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </div>
 
                   {/* Price Range */}
                   <div className="space-y-3 pt-3 border-t border-white/10">
-                    <Label className="text-sm font-bold text-foreground">Khoảng giá</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Khoảng giá
+                    </Label>
                     <div className="space-y-3">
                       <Slider
                         value={priceRange}
@@ -694,16 +775,22 @@ export default function ShopPage() {
                         className="w-full"
                       />
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-primary">{formatPrice(priceRange[0])}</span>
+                        <span className="font-medium text-primary">
+                          {formatPrice(priceRange[0])}
+                        </span>
                         <span className="text-muted-foreground">→</span>
-                        <span className="font-medium text-primary">{formatPrice(priceRange[1])}</span>
+                        <span className="font-medium text-primary">
+                          {formatPrice(priceRange[1])}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Distance */}
                   <div className="space-y-3 pt-3 border-t border-white/10">
-                    <Label className="text-sm font-bold text-foreground">Khoảng cách tối đa</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Khoảng cách tối đa
+                    </Label>
                     <div className="space-y-3">
                       <Slider
                         value={[maxDistance]}
@@ -714,14 +801,18 @@ export default function ShopPage() {
                       />
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium text-primary">{maxDistance} km từ bạn</span>
+                        <span className="text-sm font-medium text-primary">
+                          {maxDistance} km từ bạn
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Rating */}
                   <div className="space-y-3 pt-3 border-t border-white/10">
-                    <Label className="text-sm font-bold text-foreground">Đánh giá tối thiểu</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Đánh giá tối thiểu
+                    </Label>
                     <div className="grid grid-cols-2 gap-2">
                       {[0, 3, 4, 4.5].map((rating) => (
                         <Button
@@ -756,7 +847,10 @@ export default function ShopPage() {
                       onCheckedChange={(v) => setInStockOnly(v as boolean)}
                       className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     />
-                    <Label htmlFor="inStock" className="cursor-pointer text-sm font-normal flex-1">
+                    <Label
+                      htmlFor="inStock"
+                      className="cursor-pointer text-sm font-normal flex-1"
+                    >
                       Chỉ hiển thị sản phẩm còn hàng
                     </Label>
                   </div>
@@ -766,11 +860,11 @@ export default function ShopPage() {
                     variant="outline"
                     className="w-full border-white/20 glass-card bg-transparent hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-all"
                     onClick={() => {
-                      setSelectedCategories([])
-                      setPriceRange([0, 1000000])
-                      setMaxDistance(10)
-                      setMinRating(0)
-                      setInStockOnly(false)
+                      setSelectedCategories([]);
+                      setPriceRange([0, 1000000]);
+                      setMaxDistance(10);
+                      setMinRating(0);
+                      setInStockOnly(false);
                     }}
                   >
                     <X className="w-4 h-4 mr-2" />
@@ -782,10 +876,14 @@ export default function ShopPage() {
               {/* Products Grid */}
               <div className="flex-1 space-y-6">
                 {/* Active Filters */}
-                {(selectedCategories.length > 0 || minRating > 0 || inStockOnly) && (
+                {(selectedCategories.length > 0 ||
+                  minRating > 0 ||
+                  inStockOnly) && (
                   <div className="flex flex-wrap gap-2">
                     {selectedCategories.map((catId) => {
-                      const category = craftCategories.find((c) => c.id === catId)
+                      const category = craftCategories.find(
+                        (c) => c.id === catId
+                      );
                       return (
                         <Badge
                           key={catId}
@@ -798,7 +896,7 @@ export default function ShopPage() {
                             onClick={() => toggleCategory(catId)}
                           />
                         </Badge>
-                      )
+                      );
                     })}
                     {minRating > 0 && (
                       <Badge
@@ -832,7 +930,9 @@ export default function ShopPage() {
                     <Link key={product.id} href={`/products/${product.id}`}>
                       <Card
                         className={`group border-white/20 hover:border-primary/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl glass-card overflow-hidden cursor-pointer ${
-                          product.featured ? "ring-2 ring-primary/30 shadow-lg" : ""
+                          product.featured
+                            ? "ring-2 ring-primary/30 shadow-lg"
+                            : ""
                         }`}
                       >
                         {/* Product Image */}
@@ -852,7 +952,9 @@ export default function ShopPage() {
                                   : "bg-gradient-to-r from-secondary to-accent text-white border-0 shadow-md"
                               }
                             >
-                              {product.type === "finished" ? "Sản phẩm" : "Nguyên liệu"}
+                              {product.type === "finished"
+                                ? "Sản phẩm"
+                                : "Nguyên liệu"}
                             </Badge>
                           </div>
                           {product.featured && (
@@ -874,6 +976,7 @@ export default function ShopPage() {
                             size="icon"
                             variant="secondary"
                             className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg"
+                            aria-label="Yêu thích"
                           >
                             <Heart className="w-4 h-4" />
                           </Button>
@@ -894,23 +997,33 @@ export default function ShopPage() {
                           <div className="flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-1.5 text-yellow-500">
                               <Star className="w-4 h-4 fill-current" />
-                              <span className="font-semibold">{product.rating}</span>
-                              <span className="text-muted-foreground text-xs">({product.reviews})</span>
+                              <span className="font-semibold">
+                                {product.rating}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                ({product.reviews})
+                              </span>
                             </div>
                             <div className="flex items-center gap-1.5 text-muted-foreground">
                               <Package className="w-4 h-4" />
-                              <span className="text-xs">Đã bán {product.sold}</span>
+                              <span className="text-xs">
+                                Đã bán {product.sold}
+                              </span>
                             </div>
                           </div>
 
                           {/* Shop Info */}
                           <div className="flex items-center gap-2 text-sm pt-2 border-t border-white/10">
                             <Store className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <span className="font-medium truncate">{product.shop}</span>
+                            <span className="font-medium truncate">
+                              {product.shop}
+                            </span>
                             <span className="text-muted-foreground">•</span>
                             <div className="flex items-center gap-1 text-primary">
                               <MapPin className="w-3 h-3" />
-                              <span className="text-xs font-medium">{product.distance}km</span>
+                              <span className="text-xs font-medium">
+                                {product.distance}km
+                              </span>
                             </div>
                           </div>
 
@@ -930,8 +1043,8 @@ export default function ShopPage() {
                               size="sm"
                               className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all hover:scale-105 shadow-md"
                               onClick={(e) => {
-                                e.preventDefault() // Prevent link navigation when adding to cart
-                                setCartCount(cartCount + 1)
+                                e.preventDefault(); // Prevent link navigation when adding to cart
+                                setCartCount(cartCount + 1);
                               }}
                             >
                               <ShoppingCart className="w-4 h-4 mr-1.5" />
@@ -948,8 +1061,12 @@ export default function ShopPage() {
                 {filteredProducts.length === 0 && (
                   <div className="text-center py-16 glass-card rounded-2xl border-white/20">
                     <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium text-muted-foreground">Không tìm thấy sản phẩm phù hợp</p>
-                    <p className="text-sm text-muted-foreground mt-2">Thử điều chỉnh bộ lọc hoặc tìm kiếm khác</p>
+                    <p className="text-lg font-medium text-muted-foreground">
+                      Không tìm thấy sản phẩm phù hợp
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Thử điều chỉnh bộ lọc hoặc tìm kiếm khác
+                    </p>
                   </div>
                 )}
 
@@ -958,12 +1075,14 @@ export default function ShopPage() {
                   <div className="space-y-4 mt-8">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground">Hiển thị</span>
+                        <span className="text-sm text-muted-foreground">
+                          Hiển thị
+                        </span>
                         <Select
                           value={itemsPerPageProducts.toString()}
                           onValueChange={(value) => {
-                            setItemsPerPageProducts(Number(value))
-                            setCurrentProductPage(1)
+                            setItemsPerPageProducts(Number(value));
+                            setCurrentProductPage(1);
                           }}
                         >
                           <SelectTrigger className="w-20 glass-card border-white/20">
@@ -977,17 +1096,24 @@ export default function ShopPage() {
                             <SelectItem value="24">24</SelectItem>
                           </SelectContent>
                         </Select>
-                        <span className="text-sm text-muted-foreground">sản phẩm mỗi trang</span>
+                        <span className="text-sm text-muted-foreground">
+                          sản phẩm mỗi trang
+                        </span>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        Trang {currentProductPage} / {totalProductPages} ({filteredProducts.length} sản phẩm)
+                        Trang {currentProductPage} / {totalProductPages} (
+                        {filteredProducts.length} sản phẩm)
                       </span>
                     </div>
                     <Pagination className="mt-8">
                       <PaginationContent className="glass-card border-white/20 rounded-xl p-2">
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => setCurrentProductPage((prev) => Math.max(prev - 1, 1))}
+                            onClick={() =>
+                              setCurrentProductPage((prev) =>
+                                Math.max(prev - 1, 1)
+                              )
+                            }
                             className={`${
                               currentProductPage === 1
                                 ? "pointer-events-none opacity-50"
@@ -997,27 +1123,33 @@ export default function ShopPage() {
                         </PaginationItem>
 
                         {[...Array(totalProductPages)].map((_, index) => {
-                          const pageNumber = index + 1
+                          const pageNumber = index + 1;
                           const showPage =
                             pageNumber === 1 ||
                             pageNumber === totalProductPages ||
-                            (pageNumber >= currentProductPage - 1 && pageNumber <= currentProductPage + 1)
+                            (pageNumber >= currentProductPage - 1 &&
+                              pageNumber <= currentProductPage + 1);
 
                           if (!showPage) {
-                            if (pageNumber === currentProductPage - 2 || pageNumber === currentProductPage + 2) {
+                            if (
+                              pageNumber === currentProductPage - 2 ||
+                              pageNumber === currentProductPage + 2
+                            ) {
                               return (
                                 <PaginationItem key={pageNumber}>
                                   <PaginationEllipsis />
                                 </PaginationItem>
-                              )
+                              );
                             }
-                            return null
+                            return null;
                           }
 
                           return (
                             <PaginationItem key={pageNumber}>
                               <PaginationLink
-                                onClick={() => setCurrentProductPage(pageNumber)}
+                                onClick={() =>
+                                  setCurrentProductPage(pageNumber)
+                                }
                                 isActive={currentProductPage === pageNumber}
                                 className={`cursor-pointer ${
                                   currentProductPage === pageNumber
@@ -1028,12 +1160,16 @@ export default function ShopPage() {
                                 {pageNumber}
                               </PaginationLink>
                             </PaginationItem>
-                          )
+                          );
                         })}
 
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => setCurrentProductPage((prev) => Math.min(prev + 1, totalProductPages))}
+                            onClick={() =>
+                              setCurrentProductPage((prev) =>
+                                Math.min(prev + 1, totalProductPages)
+                              )
+                            }
                             className={`${
                               currentProductPage === totalProductPages
                                 ? "pointer-events-none opacity-50"
@@ -1089,6 +1225,7 @@ export default function ShopPage() {
                       size="icon"
                       onClick={() => setShowFilters(false)}
                       className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="Đóng bộ lọc"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1096,16 +1233,23 @@ export default function ShopPage() {
 
                   {/* Craft Categories */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-bold text-foreground">Chuyên môn</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Chuyên môn
+                    </Label>
                     <div className="space-y-2.5">
                       {craftCategories.map((category) => {
-                        const Icon = category.icon
+                        const Icon = category.icon;
                         return (
-                          <div key={category.id} className="flex items-center space-x-3 group">
+                          <div
+                            key={category.id}
+                            className="flex items-center space-x-3 group"
+                          >
                             <Checkbox
                               id={`store-${category.id}`}
                               checked={selectedCategories.includes(category.id)}
-                              onCheckedChange={() => toggleCategory(category.id)}
+                              onCheckedChange={() =>
+                                toggleCategory(category.id)
+                              }
                               className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
                             <Label
@@ -1116,14 +1260,16 @@ export default function ShopPage() {
                               {category.name}
                             </Label>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </div>
 
                   {/* Distance */}
                   <div className="space-y-3 pt-3 border-t border-white/10">
-                    <Label className="text-sm font-bold text-foreground">Khoảng cách tối đa</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Khoảng cách tối đa
+                    </Label>
                     <div className="space-y-3">
                       <Slider
                         value={[maxDistance]}
@@ -1134,14 +1280,18 @@ export default function ShopPage() {
                       />
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium text-primary">{maxDistance} km từ bạn</span>
+                        <span className="text-sm font-medium text-primary">
+                          {maxDistance} km từ bạn
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Rating */}
                   <div className="space-y-3 pt-3 border-t border-white/10">
-                    <Label className="text-sm font-bold text-foreground">Đánh giá tối thiểu</Label>
+                    <Label className="text-sm font-bold text-foreground">
+                      Đánh giá tối thiểu
+                    </Label>
                     <div className="grid grid-cols-2 gap-2">
                       {[0, 3, 4, 4.5].map((rating) => (
                         <Button
@@ -1173,9 +1323,9 @@ export default function ShopPage() {
                     variant="outline"
                     className="w-full border-white/20 glass-card bg-transparent hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-all"
                     onClick={() => {
-                      setSelectedCategories([])
-                      setMaxDistance(10)
-                      setMinRating(0)
+                      setSelectedCategories([]);
+                      setMaxDistance(10);
+                      setMinRating(0);
                     }}
                   >
                     <X className="w-4 h-4 mr-2" />
@@ -1190,7 +1340,9 @@ export default function ShopPage() {
                 {(selectedCategories.length > 0 || minRating > 0) && (
                   <div className="flex flex-wrap gap-2">
                     {selectedCategories.map((catId) => {
-                      const category = craftCategories.find((c) => c.id === catId)
+                      const category = craftCategories.find(
+                        (c) => c.id === catId
+                      );
                       return (
                         <Badge
                           key={catId}
@@ -1203,7 +1355,7 @@ export default function ShopPage() {
                             onClick={() => toggleCategory(catId)}
                           />
                         </Badge>
-                      )
+                      );
                     })}
                     {minRating > 0 && (
                       <Badge
@@ -1271,31 +1423,43 @@ export default function ShopPage() {
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-1.5 text-yellow-500">
                             <Star className="w-4 h-4 fill-current" />
-                            <span className="font-semibold">{store.rating}</span>
-                            <span className="text-muted-foreground text-xs">({store.reviews})</span>
+                            <span className="font-semibold">
+                              {store.rating}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              ({store.reviews})
+                            </span>
                           </div>
                           <div className="flex items-center gap-1.5 text-muted-foreground">
                             <Package className="w-4 h-4" />
-                            <span className="text-xs font-medium">{store.productCount} sản phẩm</span>
+                            <span className="text-xs font-medium">
+                              {store.productCount} sản phẩm
+                            </span>
                           </div>
                         </div>
 
                         {/* Specialties */}
                         <div className="flex flex-wrap gap-2">
                           {store.specialties.map((specialtyId) => {
-                            const specialty = craftCategories.find((c) => c.id === specialtyId)
-                            if (!specialty) return null
-                            const Icon = specialty.icon
+                            const specialty = craftCategories.find(
+                              (c) => c.id === specialtyId
+                            );
+                            if (!specialty) return null;
+                            const Icon = specialty.icon;
                             return (
                               <Badge
                                 key={specialtyId}
                                 variant="secondary"
                                 className="glass-card border-white/20 flex items-center gap-1.5 px-2.5 py-1"
                               >
-                                <Icon className={`w-3.5 h-3.5 ${specialty.color}`} />
-                                <span className="text-xs">{specialty.name}</span>
+                                <Icon
+                                  className={`w-3.5 h-3.5 ${specialty.color}`}
+                                />
+                                <span className="text-xs">
+                                  {specialty.name}
+                                </span>
                               </Badge>
-                            )
+                            );
                           })}
                         </div>
 
@@ -1320,7 +1484,9 @@ export default function ShopPage() {
                             <p className="text-muted-foreground line-clamp-1 text-xs leading-relaxed">
                               {store.location}
                             </p>
-                            <p className="text-primary font-semibold mt-1">{store.distance} km từ bạn</p>
+                            <p className="text-primary font-semibold mt-1">
+                              {store.distance} km từ bạn
+                            </p>
                           </div>
                         </div>
 
@@ -1328,11 +1494,15 @@ export default function ShopPage() {
                         <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
                           <div className="flex items-center gap-2 text-xs">
                             <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <span className="text-muted-foreground truncate">{store.openTime}</span>
+                            <span className="text-muted-foreground truncate">
+                              {store.openTime}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 text-xs">
                             <Award className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <span className="text-muted-foreground truncate">{store.responseTime}</span>
+                            <span className="text-muted-foreground truncate">
+                              {store.responseTime}
+                            </span>
                           </div>
                         </div>
 
@@ -1349,6 +1519,7 @@ export default function ShopPage() {
                             variant="outline"
                             size="icon"
                             className="border-white/20 glass-card bg-transparent hover:bg-primary/10 hover:border-primary/30 transition-all"
+                            aria-label="Gọi điện"
                           >
                             <Phone className="w-4 h-4" />
                           </Button>
@@ -1356,6 +1527,7 @@ export default function ShopPage() {
                             variant="outline"
                             size="icon"
                             className="border-white/20 glass-card bg-transparent hover:bg-primary/10 hover:border-primary/30 transition-all"
+                            aria-label="Gửi email"
                           >
                             <Mail className="w-4 h-4" />
                           </Button>
@@ -1369,8 +1541,12 @@ export default function ShopPage() {
                 {filteredStores.length === 0 && (
                   <div className="text-center py-16 glass-card rounded-2xl border-white/20">
                     <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium text-muted-foreground">Không tìm thấy cửa hàng phù hợp</p>
-                    <p className="text-sm text-muted-foreground mt-2">Thử điều chỉnh bộ lọc hoặc tìm kiếm khác</p>
+                    <p className="text-lg font-medium text-muted-foreground">
+                      Không tìm thấy cửa hàng phù hợp
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Thử điều chỉnh bộ lọc hoặc tìm kiếm khác
+                    </p>
                   </div>
                 )}
 
@@ -1379,12 +1555,14 @@ export default function ShopPage() {
                   <div className="space-y-4 mt-8">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground">Hiển thị</span>
+                        <span className="text-sm text-muted-foreground">
+                          Hiển thị
+                        </span>
                         <Select
                           value={itemsPerPageStores.toString()}
                           onValueChange={(value) => {
-                            setItemsPerPageStores(Number(value))
-                            setCurrentStorePage(1)
+                            setItemsPerPageStores(Number(value));
+                            setCurrentStorePage(1);
                           }}
                         >
                           <SelectTrigger className="w-20 glass-card border-white/20">
@@ -1397,17 +1575,24 @@ export default function ShopPage() {
                             <SelectItem value="18">18</SelectItem>
                           </SelectContent>
                         </Select>
-                        <span className="text-sm text-muted-foreground">cửa hàng mỗi trang</span>
+                        <span className="text-sm text-muted-foreground">
+                          cửa hàng mỗi trang
+                        </span>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        Trang {currentStorePage} / {totalStorePages} ({filteredStores.length} cửa hàng)
+                        Trang {currentStorePage} / {totalStorePages} (
+                        {filteredStores.length} cửa hàng)
                       </span>
                     </div>
                     <Pagination>
                       <PaginationContent className="glass-card border-white/20 rounded-xl p-2">
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => setCurrentStorePage((prev) => Math.max(prev - 1, 1))}
+                            onClick={() =>
+                              setCurrentStorePage((prev) =>
+                                Math.max(prev - 1, 1)
+                              )
+                            }
                             className={`${
                               currentStorePage === 1
                                 ? "pointer-events-none opacity-50"
@@ -1417,21 +1602,25 @@ export default function ShopPage() {
                         </PaginationItem>
 
                         {[...Array(totalStorePages)].map((_, index) => {
-                          const pageNumber = index + 1
+                          const pageNumber = index + 1;
                           const showPage =
                             pageNumber === 1 ||
                             pageNumber === totalStorePages ||
-                            (pageNumber >= currentStorePage - 1 && pageNumber <= currentStorePage + 1)
+                            (pageNumber >= currentStorePage - 1 &&
+                              pageNumber <= currentStorePage + 1);
 
                           if (!showPage) {
-                            if (pageNumber === currentStorePage - 2 || pageNumber === currentStorePage + 2) {
+                            if (
+                              pageNumber === currentStorePage - 2 ||
+                              pageNumber === currentStorePage + 2
+                            ) {
                               return (
                                 <PaginationItem key={pageNumber}>
                                   <PaginationEllipsis />
                                 </PaginationItem>
-                              )
+                              );
                             }
-                            return null
+                            return null;
                           }
 
                           return (
@@ -1448,12 +1637,16 @@ export default function ShopPage() {
                                 {pageNumber}
                               </PaginationLink>
                             </PaginationItem>
-                          )
+                          );
                         })}
 
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => setCurrentStorePage((prev) => Math.min(prev + 1, totalStorePages))}
+                            onClick={() =>
+                              setCurrentStorePage((prev) =>
+                                Math.min(prev + 1, totalStorePages)
+                              )
+                            }
                             className={`${
                               currentStorePage === totalStorePages
                                 ? "pointer-events-none opacity-50"
@@ -1471,5 +1664,5 @@ export default function ShopPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

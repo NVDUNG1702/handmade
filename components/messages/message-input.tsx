@@ -188,6 +188,7 @@ export function MessageInput({
             size="sm"
             className="h-6 w-6 p-0 ml-2"
             onClick={onCancelReply}
+            aria-label="Hủy trả lời"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -203,6 +204,7 @@ export function MessageInput({
           className="h-10 w-10 p-0 flex-shrink-0"
           onClick={handleAttachment}
           disabled={disabled}
+          aria-label="Đính kèm file"
         >
           <Paperclip className="w-5 h-5" />
         </Button>
@@ -227,6 +229,7 @@ export function MessageInput({
             className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
             onClick={handleEmoji}
             disabled={disabled}
+            aria-label="Chọn emoji"
           >
             <Smile className="w-4 h-4" />
           </Button>
@@ -238,6 +241,7 @@ export function MessageInput({
           disabled={disabled || !message.trim() || isSending}
           className="h-10 w-10 p-0 flex-shrink-0 rounded-xl"
           size="icon"
+          aria-label="Gửi tin nhắn"
         >
           <Send className={cn("w-4 h-4", isSending && "animate-pulse")} />
         </Button>
