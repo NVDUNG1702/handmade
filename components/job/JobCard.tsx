@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 export interface JobCardProps {
   job: {
     id: string;
+    job_slug?: string;
     title: string;
     description: string;
     images?: string[];
@@ -55,7 +56,7 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled }: Jo
   };
 
   return (
-    <Link href={`/jobs/${job.id}`} className="block h-full">
+    <Link href={`/jobs/${job.job_slug || job.id}`} className="block h-full">
       <div className="group relative h-full bg-card text-card-foreground border border-border rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">

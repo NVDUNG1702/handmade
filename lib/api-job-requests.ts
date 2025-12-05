@@ -5,7 +5,7 @@ import { cleanQueryParams } from "@/lib/api-utils";
 export interface CreateJobRequest {
   title: string;
   description: string;
-  required_skill_id: string;
+  required_skill: string;
   budget_min: number;
   budget_max: number;
   currency?: string;

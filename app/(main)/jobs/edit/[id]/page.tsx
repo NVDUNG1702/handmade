@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import {
   ArrowLeft,
   Briefcase,
@@ -10,11 +10,9 @@ import {
   ChevronRight,
   DollarSign,
   ImageIcon,
-  Info,
-  MapPin,
   Plus,
-  Trash,
   X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,13 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateJobRequest } from "@/hooks/use-job-requests";
+import {
+  useJobRequestById,
+  useUpdateJobRequest,
+} from "@/hooks/use-job-requests";
 import { useProvinces, useWards } from "@/hooks/use-location";
 import { useSkills } from "@/hooks/use-skills";
 import { RequireAuth } from "@/components/require-auth";
 import Link from "next/link";
+import { useAuthStore } from "@/lib/auth-store";
 
 interface FormData {
   title: string;
@@ -66,9 +67,11 @@ const STEPS = [
   { id: 3, title: "Kỹ năng & Hình ảnh" },
 ];
 
-export default function CreateJobPage() {
+export default function EditJobPage() {
   const router = useRouter();
+  const params = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState("");
@@ -96,12 +99,53 @@ export default function CreateJobPage() {
   });
 
   // API Hooks
+  const { data: jobData, isLoading: isJobLoading } = useJobRequestById(
+    params?.id || ""
+  );
   const { data: provincesData, loading: provincesLoading } = useProvinces();
   const { data: wardsData, loading: wardsLoading } = useWards(
     formData.provinceCode || null
   );
   const { data: skillsData, isLoading: skillsLoading } = useSkills();
-  const createJobRequestMutation = useCreateJobRequest();
+  const updateJobRequestMutation = useUpdateJobRequest();
+
+  // Populate form data when jobData is loaded
+  useEffect(() => {
+    if (jobData) {
+      const job = jobData as any;
+      
+      // Check ownership
+      if (user && job.created_by?.id && user.id !== job.created_by.id) {
+        toast({
+          variant: "destructive",
+          title: "Không có quyền",
+          description: "Bạn không có quyền chỉnh sửa công việc này",
+        });
+        router.push("/dashboard/customer");
+        return;
+      }
+
+      setFormData({
+        title: job.title || "",
+        description: job.description || "",
+        location: job.location || "",
+        ward: job.ward || "",
+        city: job.city || "",
+        district: job.district || "",
+        provinceCode: job.provinceCode || "",
+        wardCode: job.wardCode || "",
+        latitude: job.latitude?.toString() || "",
+        longitude: job.longitude?.toString() || "",
+        budget_min: job.budget_min?.toString() || "",
+        budget_max: job.budget_max?.toString() || "",
+        currency: job.currency || "VND",
+        deadline: job.deadline ? new Date(job.deadline).toISOString().split("T")[0] : "",
+        priority: job.priority || "NORMAL",
+        required_skill: job.required_skill?.id || job.required_skill?._id || "",
+        images: job.images || [],
+      });
+    }
+  }, [jobData, user, router, toast]);
 
   // Handlers
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -137,7 +181,7 @@ export default function CreateJobPage() {
         ...prev,
         wardCode: code,
         ward: ward.name,
-        district: ward.name, // Using ward name as district/ward for simplicity if structure varies
+        district: ward.name,
       }));
     }
   };
@@ -219,43 +263,55 @@ export default function CreateJobPage() {
 
   const handleSubmit = async () => {
     if (!validateStep(3)) return;
+    if (!params?.id) return;
 
     setIsSubmitting(true);
     try {
-      await createJobRequestMutation.mutateAsync({
-        title: formData.title,
-        description: formData.description,
-        required_skill: formData.required_skill,
-        location: formData.location,
-        city: formData.city,
-        district: formData.district,
-        ward: formData.ward,
-        provinceCode: formData.provinceCode,
-        wardCode: formData.wardCode,
-        budget_min: Number(formData.budget_min),
-        budget_max: Number(formData.budget_max),
-        currency: formData.currency,
-        deadline: formData.deadline,
-        priority: formData.priority as any,
-        is_urgent: formData.priority === "URGENT",
-        images: formData.images,
+      await updateJobRequestMutation.mutateAsync({
+        id: params.id,
+        data: {
+          title: formData.title,
+          description: formData.description,
+          required_skill: formData.required_skill,
+          location: formData.location,
+          city: formData.city,
+          district: formData.district,
+          ward: formData.ward,
+          provinceCode: formData.provinceCode,
+          wardCode: formData.wardCode,
+          budget_min: Number(formData.budget_min),
+          budget_max: Number(formData.budget_max),
+          currency: formData.currency,
+          deadline: formData.deadline,
+          priority: formData.priority as any,
+          is_urgent: formData.priority === "URGENT",
+          images: formData.images,
+        },
       });
 
       toast({
         title: "Thành công",
-        description: "Đã tạo yêu cầu công việc mới!",
+        description: "Đã cập nhật công việc!",
       });
-      router.push("/dashboard/customer");
+      router.push(`/jobs/${(jobData as any)?.job_slug || params.id}`);
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Lỗi",
-        description: error?.message || "Không thể tạo yêu cầu công việc",
+        description: error?.message || "Không thể cập nhật công việc",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isJobLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <RequireAuth>
@@ -268,16 +324,16 @@ export default function CreateJobPage() {
               className="mb-4 pl-0 hover:bg-transparent hover:text-primary"
               asChild
             >
-              <Link href="/dashboard/customer">
+              <Link href={`/jobs/${(jobData as any)?.job_slug || params?.id}`}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Quay lại Dashboard
+                Quay lại chi tiết
               </Link>
             </Button>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Đăng công việc mới
+              Chỉnh sửa công việc
             </h1>
             <p className="text-muted-foreground mt-2">
-              Tìm kiếm thợ thủ công tài năng cho dự án của bạn
+              Cập nhật thông tin cho dự án của bạn
             </p>
           </div>
 
@@ -650,7 +706,7 @@ export default function CreateJobPage() {
                 disabled={isSubmitting}
                 className="bg-gradient-to-r from-primary to-accent"
               >
-                {isSubmitting ? "Đang xử lý..." : "Đăng công việc"}
+                {isSubmitting ? "Đang xử lý..." : "Cập nhật công việc"}
               </Button>
             )}
           </div>

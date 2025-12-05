@@ -77,10 +77,12 @@ export default function MessagesPage() {
     stopTyping,
   } = useMessages(selectedConversationId);
 
-  // Get current conversation
-  const currentConversation = conversations.find(
-    (conv) => conv._id === selectedConversationId
-  );
+  const [virtualConversation, setVirtualConversation] = useState<ConversationResponse | null>(null);
+
+  // Get current conversation (real or virtual)
+  const currentConversation = 
+    conversations.find((conv) => conv._id === selectedConversationId) || 
+    (selectedConversationId?.startsWith("new:") ? virtualConversation : null);
 
   const isCreatingConversation = useRef(false);
 
@@ -88,6 +90,10 @@ export default function MessagesPage() {
   useEffect(() => {
     const conversationParam = searchParams.get("conversation");
     const userIdParam = searchParams.get("userId");
+    const nameParam = searchParams.get("name");
+    const avatarParam = searchParams.get("avatar");
+    const usernameParam = searchParams.get("username");
+    const slugParam = searchParams.get("slug");
 
     if (conversationParam && conversationParam !== selectedConversationId) {
       // Invalidate queries to fetch fresh data
@@ -99,42 +105,62 @@ export default function MessagesPage() {
       // Set selected conversation
       setSelectedConversationId(conversationParam);
       setShowMobileChat(true);
-    } else if (userIdParam && user && !conversationsLoading) {
+    } else if ((userIdParam || slugParam) && user && !conversationsLoading) {
       // Check if conversation exists with this user
       const existingConv = conversations.find(
         (c) =>
-          c.sender?._id === userIdParam ||
-          (c.user1_id === userIdParam && c.user2_id === user.id) ||
-          (c.user2_id === userIdParam && c.user1_id === user.id)
+          (userIdParam && (c.sender?._id === userIdParam ||
+          (c.conversation?.user1_id === userIdParam && c.conversation?.user2_id === user.id) ||
+          (c.conversation?.user2_id === userIdParam && c.conversation?.user1_id === user.id))) ||
+          (slugParam && c.sender?.slug === slugParam)
       );
 
       if (existingConv) {
         if (selectedConversationId !== existingConv._id) {
           setSelectedConversationId(existingConv._id);
           setShowMobileChat(true);
+          setVirtualConversation(null);
         }
       } else {
-        // Create new conversation if not exists
-        if (!isCreatingConversation.current) {
-          isCreatingConversation.current = true;
-          createConversation({ user1_id: user.id, user2_id: userIdParam })
-            .then((res) => {
-              if (res?.data) {
-                setSelectedConversationId(res.data._id);
-                setShowMobileChat(true);
-                queryClient.invalidateQueries({ queryKey: ["conversations"] });
-              }
-            })
-            .catch((err) => {
-              console.error("Failed to create conversation:", err);
-            })
-            .finally(() => {
-              isCreatingConversation.current = false;
-            });
+        // Create VIRTUAL conversation if not exists
+        const virtualId = userIdParam ? `new:${userIdParam}` : `new:slug:${slugParam}`;
+        
+        if (selectedConversationId !== virtualId) {
+          const fakeSender = {
+            _id: userIdParam || "temp-id",
+            full_name: nameParam ? decodeURIComponent(nameParam) : (slugParam || "User"),
+            avatar: avatarParam ? decodeURIComponent(avatarParam) : undefined,
+            username: usernameParam ? decodeURIComponent(usernameParam) : (slugParam || "user"),
+            slug: slugParam || "",
+            status: true,
+            role: "user",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          const fakeConv: any = {
+            _id: virtualId,
+            lastMessage: null,
+            unreadCount: 0,
+            sender: fakeSender,
+            conversation: {
+              _id: virtualId,
+              user1_id: user.id,
+              user2_id: userIdParam || "temp-id",
+              blocked_by_user1: false,
+              blocked_by_user2: false,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }
+          };
+
+          setVirtualConversation(fakeConv);
+          setSelectedConversationId(virtualId);
+          setShowMobileChat(true);
         }
       }
     }
-  }, [searchParams, selectedConversationId, queryClient, conversations, user, conversationsLoading, createConversation]);
+  }, [searchParams, selectedConversationId, queryClient, conversations, user, conversationsLoading]);
 
   // Restore scroll position after loading more
   useEffect(() => {
@@ -273,12 +299,80 @@ export default function MessagesPage() {
     setIsLoadingMore(false);
   };
 
-  const handleSendMessage = (
+  const handleSendMessage = async (
     content: string,
     type?: string,
     parentId?: string
   ) => {
-    sendMessage(content, type, parentId);
+    if (selectedConversationId?.startsWith("new:")) {
+      if (isCreatingConversation.current) return;
+      isCreatingConversation.current = true;
+
+      try {
+        const userIdParam = searchParams.get("userId");
+        const slugParam = searchParams.get("slug");
+        
+        let newConv;
+        if (userIdParam) {
+           newConv = await createConversation({ user1_id: user?.id || "", user2_id: userIdParam });
+        } else {
+           console.error("Missing userId for creation");
+           return;
+        }
+
+        if (newConv?.data) {
+          const realId = newConv.data._id;
+          setSelectedConversationId(realId);
+          setVirtualConversation(null);
+          
+          // Send message using API directly to ensure it goes to the new conversation
+          // We import messageApi dynamically or assume it's available. 
+          // Since we can't import inside, we'll rely on the fact that we need to reload or use the hook.
+          // But hook is stale.
+          // Let's use the `sendMessage` from hook but we know it might fail if we don't update state fast enough.
+          // Actually, if we update `selectedConversationId`, the hook `useMessages` will re-mount with new ID.
+          // So we can just wait a tick?
+          
+          // Better: We can't easily wait for hook update in event handler.
+          // We will use `window.location.reload()` or similar? No.
+          
+          // We will use the `sendMessage` function from the hook, BUT we will pass the new ID if the hook supported it.
+          // Since it doesn't, we will use `messageApi` directly.
+          // I will add `import { messageApi } from "@/lib/api-message";` at the top of file in a separate edit if needed.
+          // For now, I will assume I can add it.
+          
+          // Wait, I can't add import in this block.
+          // I will use `sendMessage` from hook, but I will update the `selectedConversationId` first.
+          // And I will pass the content to a ref or state to be sent after ID update?
+          // No, that's complex.
+          
+          // I will just use `sendMessage` and hope the hook updates fast enough? No.
+          
+          // I will use `fetch` or `axiosInstance` directly if I have to.
+          // `axiosInstance` is imported? No.
+          
+          // I will assume `messageApi` is imported. I will add the import in a separate step.
+          // For now, I will write the code assuming `messageApi` is available.
+          
+          await import("@/lib/api-message").then(async ({ messageApi }) => {
+             await messageApi.sendMessage({
+               conversation_id: realId,
+               content,
+               type: type as any,
+               parent_id: parentId
+             });
+             queryClient.invalidateQueries({ queryKey: ["messages", realId] });
+             queryClient.invalidateQueries({ queryKey: ["conversations"] });
+          });
+        }
+      } catch (err) {
+        console.error("Failed to create conversation:", err);
+      } finally {
+        isCreatingConversation.current = false;
+      }
+    } else {
+      sendMessage(content, type, parentId);
+    }
   };
 
   const handleReply = (message: MessageResponse) => {
@@ -340,6 +434,11 @@ export default function MessagesPage() {
     );
   }
 
+  // Merge virtual conversation into list if it exists
+  const displayConversations = virtualConversation 
+    ? [virtualConversation, ...conversations] 
+    : conversations;
+
   return (
     <div className="flex h-full w-full bg-background overflow-hidden">
       {/* Conversation List - Desktop always visible, Mobile conditional */}
@@ -350,7 +449,7 @@ export default function MessagesPage() {
         )}
       >
         <ConversationList
-          conversations={conversations}
+          conversations={displayConversations}
           selectedConversationId={selectedConversationId}
           onSelectConversation={handleSelectConversation}
           loading={conversationsLoading}
@@ -448,9 +547,9 @@ export default function MessagesPage() {
                 className="h-full overflow-y-auto px-4 py-6"
                 style={{ scrollBehavior: isLoadingMore ? "auto" : "smooth" }}
               >
-                <div className="space-y-3 max-w-4xl mx-auto">
+                <div className="space-y-3 max-w-4xl mx-auto min-h-full flex flex-col">
                   {/* Load more button */}
-                  {hasMore && (
+                  {hasMore && messages.length > 0 && (
                     <div className="text-center">
                       <Button
                         variant="ghost"
@@ -462,6 +561,29 @@ export default function MessagesPage() {
                           ? "Đang tải..."
                           : "Tải thêm tin nhắn"}
                       </Button>
+                    </div>
+                  )}
+
+                  {/* Empty State / Start Conversation */}
+                  {messages.length === 0 && (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-muted-foreground">
+                      <div className="w-20 h-20 bg-background rounded-full flex items-center justify-center mb-4 shadow-sm">
+                        <Avatar className="w-16 h-16">
+                          <AvatarImage
+                            src={getOtherUser(currentConversation)?.avatar}
+                          />
+                          <AvatarFallback>
+                            {getOtherUser(currentConversation)?.full_name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <h3 className="text-lg font-semibold mb-1">
+                        {getOtherUser(currentConversation)?.full_name}
+                      </h3>
+                      <p className="text-sm mb-4">
+                        {getOtherUser(currentConversation)?.username}
+                      </p>
+                      <p>Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</p>
                     </div>
                   )}
 

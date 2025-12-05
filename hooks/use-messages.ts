@@ -150,10 +150,10 @@ export const useMessages = (conversationId: string | null) => {
   } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: () => {
-      if (!conversationId) return null;
+      if (!conversationId || conversationId.startsWith("new:")) return null;
       return messageApi.getConversationMessages(conversationId, { limit: 50 });
     },
-    enabled: !!conversationId,
+    enabled: !!conversationId && !conversationId.startsWith("new:"),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 

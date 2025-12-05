@@ -28,10 +28,25 @@ export default function CustomerDashboardPage() {
 
   const jobs = useMemo(() => {
     if (!myJobsData) return [];
+    
+    // If it's already an array (unlikely given the types but possible fallback)
     if (Array.isArray(myJobsData)) return myJobsData;
+
+    // If it's the ApiResponse object
     if (typeof myJobsData === "object" && "data" in myJobsData) {
-      return (myJobsData as any).data || [];
+      const payload = (myJobsData as any).data;
+      
+      // If payload is PaginatedResult (has data array)
+      if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) {
+        return payload.data;
+      }
+      
+      // If payload is directly the array
+      if (Array.isArray(payload)) {
+        return payload;
+      }
     }
+    
     return [];
   }, [myJobsData]);
 
@@ -213,7 +228,7 @@ export default function CustomerDashboardPage() {
                           {formatCurrency(job.budget_min)} -{" "}
                           {formatCurrency(job.budget_max)}
                         </p>
-                        <Link href={`/jobs/${job.id}`}>
+                        <Link href={`/jobs/${job.job_slug || job.id}`}>
                           <Button
                             size="sm"
                             variant="outline"

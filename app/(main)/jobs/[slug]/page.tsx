@@ -27,7 +27,8 @@ import { useParams } from "next/navigation";
 import axiosInstance from "@/lib/axios-instance";
 import type { ApiResponse } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useJobRequests } from "@/hooks/use-job-requests";
+import { useAuthStore } from "@/lib/auth-store";
+import { useJobRequests, useJobRequestById } from "@/hooks/use-job-requests";
 
 // Utility function to format time
 const formatTimeAgo = (dateString: string | Date): string => {
@@ -80,10 +81,11 @@ const formatDeadline = (
 };
 
 export default function JobDetailPage() {
-  const params = useParams<{ id: string }>();
-  const [job, setJob] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuthStore();
+  const params = useParams<{ slug: string }>();
+  const { data: jobData, isLoading: loading, error: queryError } = useJobRequestById(params?.slug);
+  const job = jobData as any;
+  const error = queryError ? (queryError as any).message || "Có lỗi xảy ra" : null;
 
   const { data: similarJobsData } = useJobRequests({
     limit: 4,
@@ -94,37 +96,12 @@ export default function JobDetailPage() {
     .filter((j: any) => j.id !== job?.id)
     .slice(0, 3);
 
+  // Effect to handle title update or other side effects if needed
   useEffect(() => {
-    let mounted = true;
-    const fetchDetail = async () => {
-      if (!params?.id) return;
-      setLoading(true);
-      try {
-        const res = await axiosInstance.get<ApiResponse<any>>(
-          `/job-requests/${params.id}`
-        );
-        if (!mounted) return;
-
-        // Handle flexible response structure
-        const responseData = res.data.data;
-        if (responseData && typeof responseData === "object") {
-          setJob(responseData);
-        } else {
-          setJob(null);
-          setError("Không tìm thấy thông tin công việc");
-        }
-      } catch (err) {
-        console.error("Error fetching job detail:", err);
-        setError("Có lỗi xảy ra khi tải thông tin công việc");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    void fetchDetail();
-    return () => {
-      mounted = false;
-    };
-  }, [params?.id]);
+    if (job?.title) {
+      document.title = `${job.title} | Handmade`;
+    }
+  }, [job]);
 
   if (loading) {
     return (
@@ -322,22 +299,47 @@ export default function JobDetailPage() {
                   </p>
                 </div>
 
-                <Link href={`/jobs/${job.id}/apply`} className="block w-full">
-                  <Button className="w-full h-12 text-base font-semibold shadow-md">
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    Ứng tuyển ngay
-                  </Button>
-                </Link>
+                {user?.id === job.created_by?.id ? (
+                  <>
+                    <Link href={`/jobs/edit/${job.id}`} className="block w-full">
+                      <Button className="w-full h-12 text-base font-semibold shadow-md bg-orange-500 hover:bg-orange-600 text-white">
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Chỉnh sửa công việc
+                      </Button>
+                    </Link>
+                    <Link href={`/dashboard/customer/jobs/${job.id}/applications`} className="block w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        Xem ứng viên ({job.application_count || 0})
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href={`/jobs/${job.job_slug || job.id}/apply`} className="block w-full">
+                      <Button className="w-full h-12 text-base font-semibold shadow-md">
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Ứng tuyển ngay
+                      </Button>
+                    </Link>
 
-                <Link href={`/messages?userId=${job.created_by?.id}`} className="block w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full h-12 border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Nhắn tin
-                  </Button>
-                </Link>
+                    <Link 
+                      href={`/messages?slug=${job.created_by?.slug || ""}&name=${encodeURIComponent(job.created_by?.full_name || "")}&avatar=${encodeURIComponent(job.created_by?.avatar_url || "")}&username=${encodeURIComponent(job.created_by?.username || "")}`} 
+                      className="block w-full"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Nhắn tin
+                      </Button>
+                    </Link>
+                  </>
+                )}
 
                 <div className="pt-4 border-t border-border space-y-4">
                   <div className="flex items-center gap-3">
@@ -460,7 +462,7 @@ export default function JobDetailPage() {
                 </h3>
                 <div className="space-y-3">
                   {similarJobs.map((similar: any) => (
-                    <Link key={similar.id} href={`/jobs/${similar.id}`}>
+                    <Link key={similar.id} href={`/jobs/${similar.job_slug || similar.id}`}>
                       <Card className="p-4 border-border hover:border-primary/50 transition-all bg-muted/30 hover:bg-muted/50">
                         <h4 className="font-medium mb-2 hover:text-primary transition-colors line-clamp-2 text-foreground">
                           {similar.title}
