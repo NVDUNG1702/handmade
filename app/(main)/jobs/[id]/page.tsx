@@ -329,13 +329,15 @@ export default function JobDetailPage() {
                   </Button>
                 </Link>
 
-                <Button
-                  variant="outline"
-                  className="w-full h-12 border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Nhắn tin
-                </Button>
+                <Link href={`/messages?userId=${job.created_by?.id}`} className="block w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Nhắn tin
+                  </Button>
+                </Link>
 
                 <div className="pt-4 border-t border-border space-y-4">
                   <div className="flex items-center gap-3">

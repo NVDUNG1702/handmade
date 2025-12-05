@@ -63,7 +63,7 @@ export default function MessagesPage() {
   } | null>(null);
 
   // Hooks
-  const { conversations, isLoading: conversationsLoading } = useConversations();
+  const { conversations, isLoading: conversationsLoading, createConversation } = useConversations();
   const {
     messages,
     loading: messagesLoading,
@@ -82,9 +82,13 @@ export default function MessagesPage() {
     (conv) => conv._id === selectedConversationId
   );
 
-  // Handle conversation from URL params (from notification)
+  const isCreatingConversation = useRef(false);
+
+  // Handle conversation from URL params (from notification or direct link)
   useEffect(() => {
     const conversationParam = searchParams.get("conversation");
+    const userIdParam = searchParams.get("userId");
+
     if (conversationParam && conversationParam !== selectedConversationId) {
       // Invalidate queries to fetch fresh data
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -95,8 +99,42 @@ export default function MessagesPage() {
       // Set selected conversation
       setSelectedConversationId(conversationParam);
       setShowMobileChat(true);
+    } else if (userIdParam && user && !conversationsLoading) {
+      // Check if conversation exists with this user
+      const existingConv = conversations.find(
+        (c) =>
+          c.sender?._id === userIdParam ||
+          (c.user1_id === userIdParam && c.user2_id === user.id) ||
+          (c.user2_id === userIdParam && c.user1_id === user.id)
+      );
+
+      if (existingConv) {
+        if (selectedConversationId !== existingConv._id) {
+          setSelectedConversationId(existingConv._id);
+          setShowMobileChat(true);
+        }
+      } else {
+        // Create new conversation if not exists
+        if (!isCreatingConversation.current) {
+          isCreatingConversation.current = true;
+          createConversation({ user1_id: user.id, user2_id: userIdParam })
+            .then((res) => {
+              if (res?.data) {
+                setSelectedConversationId(res.data._id);
+                setShowMobileChat(true);
+                queryClient.invalidateQueries({ queryKey: ["conversations"] });
+              }
+            })
+            .catch((err) => {
+              console.error("Failed to create conversation:", err);
+            })
+            .finally(() => {
+              isCreatingConversation.current = false;
+            });
+        }
+      }
     }
-  }, [searchParams, selectedConversationId, queryClient]);
+  }, [searchParams, selectedConversationId, queryClient, conversations, user, conversationsLoading, createConversation]);
 
   // Restore scroll position after loading more
   useEffect(() => {

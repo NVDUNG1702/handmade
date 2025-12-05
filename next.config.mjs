@@ -38,6 +38,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "theme.hstatic.net",
       },
+      {
+        protocol: "https",
+        hostname: "c4.wallpaperflare.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
     // Optimize image formats
     formats: ["image/avif", "image/webp"],

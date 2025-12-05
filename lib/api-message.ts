@@ -164,6 +164,14 @@ export const conversationApi = {
     return response.data;
   },
 
+  // Tạo conversation mới
+  createConversation: async (
+    data: { user1_id: string; user2_id: string }
+  ): Promise<ApiResponse<ConversationResponse>> => {
+    const response = await axiosInstance.post("/conversations", data);
+    return response.data;
+  },
+
   // Tạo hoặc lấy conversation theo recipient slug
   createConversationBySlug: async (
     data: CreateConversationBySlugRequest

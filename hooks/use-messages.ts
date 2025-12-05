@@ -473,12 +473,26 @@ export const useConversations = (params?: ConversationQueryParams) => {
     },
   });
 
+  // Mutation để tạo conversation
+  const createConversationMutation = useMutation({
+    mutationFn: (data: { user1_id: string; user2_id: string }) =>
+      conversationApi.createConversation(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+    onError: (error: any) => {
+      console.error("Create conversation error:", error);
+      toast.error("Không thể tạo cuộc trò chuyện");
+    },
+  });
+
   return {
     conversations,
     total: conversationsData?.data?.total || 0,
     isLoading,
     error,
     createConversationBySlug: createConversationBySlugMutation.mutate,
+    createConversation: createConversationMutation.mutateAsync,
     refetch,
   };
 };

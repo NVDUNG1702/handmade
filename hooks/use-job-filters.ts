@@ -148,7 +148,7 @@ export function useJobFilters() {
     setNearbyEnabled(enabled);
 
     if (initFilters.keyword) setSearchInput(initFilters.keyword);
-  }, []);
+  }, [searchParams]); // Add searchParams dependency
 
   const handleSearch = (value: string) => {
     setFilters((prev) => {
