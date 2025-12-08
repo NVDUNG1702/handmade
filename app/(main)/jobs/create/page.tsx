@@ -239,6 +239,8 @@ export default function CreateJobPage() {
         priority: formData.priority as any,
         is_urgent: formData.priority === "URGENT",
         images: formData.images,
+        latitude: formData.latitude ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude ? Number(formData.longitude) : undefined,
       });
 
       toast({
@@ -427,6 +429,88 @@ export default function CreateJobPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+
+                  <div className="space-y-4 border-t pt-4 mt-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-base font-semibold">
+                        Vị trí bản đồ (để tìm kiếm "Gần tôi")
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!navigator.geolocation) {
+                            toast({
+                              variant: "destructive",
+                              title: "Lỗi",
+                              description:
+                                "Trình duyệt của bạn không hỗ trợ định vị",
+                            });
+                            return;
+                          }
+
+                          toast({
+                            title: "Đang lấy vị trí...",
+                            description: "Vui lòng cấp quyền truy cập vị trí",
+                          });
+
+                          navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                latitude: String(position.coords.latitude),
+                                longitude: String(position.coords.longitude),
+                              }));
+                              toast({
+                                title: "Thành công",
+                                description: "Đã cập nhật vị trí hiện tại",
+                              });
+                            },
+                            (error) => {
+                              console.error("Location error:", error);
+                              toast({
+                                variant: "destructive",
+                                title: "Không thể lấy vị trí",
+                                description:
+                                  "Vui lòng kiểm tra quyền truy cập vị trí",
+                              });
+                            }
+                          );
+                        }}
+                      >
+                        <MapPin className="w-4 h-4 mr-2" />
+                        Lấy vị trí hiện tại
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="latitude">Vĩ độ (Latitude)</Label>
+                        <Input
+                          id="latitude"
+                          value={formData.latitude}
+                          readOnly
+                          placeholder="Tự động cập nhật..."
+                          className="bg-muted"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="longitude">Kinh độ (Longitude)</Label>
+                        <Input
+                          id="longitude"
+                          value={formData.longitude}
+                          readOnly
+                          placeholder="Tự động cập nhật..."
+                          className="bg-muted"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      * Việc cung cấp tọa độ giúp công việc của bạn hiển thị chính
+                      xác hơn khi người dùng tìm kiếm "Gần tôi".
+                    </p>
                   </div>
                 </div>
               )}

@@ -20,6 +20,8 @@ export interface CreateJobRequest {
   images?: string[];
   is_featured?: boolean;
   is_urgent?: boolean;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface JobRequestFilters {

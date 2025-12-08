@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -65,6 +65,7 @@ export default function JobsPage() {
     handleWardChange,
     handleNearbyToggle,
     handleLocationUpdate,
+    handleApplyFilters,
   } = useJobFilters();
 
   // UI states
@@ -208,7 +209,7 @@ export default function JobsPage() {
       const distances = jobs.map(
         (j, i) =>
           `${i + 1}. ${j.title.substring(0, 35)} → ${
-            j.distance_km !== undefined
+            typeof j.distance_km === 'number'
               ? j.distance_km.toFixed(1) + "km"
               : "NO DISTANCE"
           }`
@@ -501,48 +502,7 @@ export default function JobsPage() {
                 </Select>
               </div>
 
-              {/* Features Filter */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Tùy chọn khác</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="featured"
-                      checked={filters.is_featured === true}
-                      onCheckedChange={(checked) =>
-                        handleFilterChange(
-                          "is_featured",
-                          checked === true ? true : undefined
-                        )
-                      }
-                    />
-                    <Label
-                      htmlFor="featured"
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      Chỉ công việc nổi bật
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="urgent"
-                      checked={filters.is_urgent === true}
-                      onCheckedChange={(checked) =>
-                        handleFilterChange(
-                          "is_urgent",
-                          checked === true ? true : undefined
-                        )
-                      }
-                    />
-                    <Label
-                      htmlFor="urgent"
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      Cần gấp
-                    </Label>
-                  </div>
-                </div>
-              </div>
+
             </div>
 
             <div className="flex gap-3 pt-4 border-t border-border">
@@ -562,9 +522,11 @@ export default function JobsPage() {
                 className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground"
                 onClick={() => {
                   // Apply temp filters to actual filters
-                  handleFilterChange("radius", tempDistance[0] as any);
-                  handleFilterChange("budget_min", tempPriceRange[0] as any);
-                  handleFilterChange("budget_max", tempPriceRange[1] as any);
+                  handleApplyFilters({
+                    radius: tempDistance[0],
+                    budget_min: tempPriceRange[0],
+                    budget_max: tempPriceRange[1],
+                  });
                   setFilterOpen(false);
                 }}
               >
