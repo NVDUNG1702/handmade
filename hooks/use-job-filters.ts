@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { JOB_CONSTANTS } from "@/lib/job-constants";
 
 export interface JobFilters {
   page: number;
@@ -32,6 +33,8 @@ export interface JobFilters {
 export function useJobFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isInitialized = useRef(false);
+  const hasCheckedStorage = useRef(false);
 
   const [filters, setFilters] = useState<JobFilters>({
     page: 1,
@@ -148,12 +151,57 @@ export function useJobFilters() {
     setNearbyEnabled(enabled);
 
     if (initFilters.keyword) setSearchInput(initFilters.keyword);
-    else setSearchInput(""); // Clear search input if keyword is empty in URL
+    else setSearchInput("");
+
+    // Storage Logic: Restore from storage if URL is empty and we haven't checked yet
+    if (!hasCheckedStorage.current) {
+      hasCheckedStorage.current = true;
+
+      const hasUrlFilters = Array.from(sp.keys()).some(
+        (key) => key !== "page" && key !== "limit" && key !== "nearby"
+      );
+
+      if (!hasUrlFilters) {
+        const saved = localStorage.getItem(JOB_CONSTANTS.STORAGE_KEYS.FILTERS);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed && typeof parsed === "object") {
+              const nearby =
+                parsed.lat !== undefined &&
+                parsed.lng !== undefined &&
+                parsed.radius !== undefined;
+
+              pushFiltersToUrl(parsed, nearby);
+              return; // Stop here, don't set isInitialized to true yet
+            }
+          } catch (e) {
+            console.error("Failed to load filters from storage", e);
+          }
+        }
+      }
+    }
+
+    isInitialized.current = true;
   }, [searchParams]);
+
+  // Save filters to localStorage when they change
+  useEffect(() => {
+    if (!isInitialized.current) return;
+    if (typeof window === "undefined") return;
+
+    try {
+      localStorage.setItem(
+        JOB_CONSTANTS.STORAGE_KEYS.FILTERS,
+        JSON.stringify(filters)
+      );
+    } catch (error) {
+      console.error("Failed to save filters to storage:", error);
+    }
+  }, [filters]);
 
   const handleSearch = (value: string) => {
     const next = { ...filters, keyword: value, page: 1 } as JobFilters;
-    // setFilters(next); // Removed: rely on URL update
     pushFiltersToUrl(next, nearbyEnabled);
   };
 
@@ -162,7 +210,6 @@ export function useJobFilters() {
     value: JobFilters[typeof key]
   ) => {
     const next = { ...filters, [key]: value, page: 1 } as JobFilters;
-    // setFilters(next); // Removed: rely on URL update
     pushFiltersToUrl(next, nearbyEnabled);
   };
 
@@ -187,15 +234,12 @@ export function useJobFilters() {
       is_featured: undefined,
       is_urgent: undefined,
     };
-    // setFilters(cleared); // Removed
-    // setNearbyEnabled(false); // Removed
     setSearchInput("");
     pushFiltersToUrl(cleared, false);
   };
 
   const handlePageChange = (page: number) => {
     const next = { ...filters, page } as JobFilters;
-    // setFilters(next); // Removed
     pushFiltersToUrl(next, nearbyEnabled);
   };
 
@@ -207,7 +251,6 @@ export function useJobFilters() {
       wardCode: undefined,
       page: 1,
     } as JobFilters;
-    // setFilters(next); // Removed
     pushFiltersToUrl(next, nearbyEnabled);
   };
 
@@ -218,12 +261,10 @@ export function useJobFilters() {
       ward: "", // Will be set by parent component
       page: 1,
     } as JobFilters;
-    // setFilters(next); // Removed
     pushFiltersToUrl(next, nearbyEnabled);
   };
 
   const handleNearbyToggle = (enabled: boolean) => {
-    // setNearbyEnabled(enabled); // Removed: rely on URL
     if (!enabled) {
       const next = {
         ...filters,
@@ -232,18 +273,9 @@ export function useJobFilters() {
         radius: undefined,
         page: 1,
       } as JobFilters;
-      // setFilters(next); // Removed
       pushFiltersToUrl(next, false);
     } else {
-        // If enabling without new coords, just push current state with nearby=1 (if needed)
-        // But usually this is called with handleLocationUpdate.
-        // If just toggling on, we might need to wait for location.
-        // For now, just update the local state to show loading UI if needed,
-        // but the main source of truth is URL.
-        // Actually, for "Nearby" button, we usually call getUserLocation -> handleLocationUpdate.
-        // So this might be redundant or just for UI toggle.
-        // Let's keep setNearbyEnabled here for immediate UI feedback (loading state)
-        setNearbyEnabled(true);
+      setNearbyEnabled(true);
     }
   };
 
@@ -255,7 +287,6 @@ export function useJobFilters() {
       radius: radius ?? filters.radius ?? 50,
       page: 1,
     } as JobFilters;
-    // setFilters(next); // Removed
     pushFiltersToUrl(next, true);
   };
 
