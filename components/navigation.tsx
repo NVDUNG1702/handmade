@@ -254,7 +254,7 @@ export function Navigation() {
                       className="fixed inset-0 z-40"
                       onClick={() => setUserMenuOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-72 glass-card border-white/20 rounded-2xl p-3 z-50 shadow-2xl animate-in slide-in-from-top-2">
+                    <div className="absolute right-0 mt-2 w-72 bg-white border-white/20 rounded-2xl p-3 z-50 shadow-2xl animate-in slide-in-from-top-2">
                       <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-white/10 mb-3">
                         <div className="flex items-center gap-3 mb-2">
                           {user?.avatar ? (
