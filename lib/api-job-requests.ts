@@ -110,3 +110,17 @@ export const getJobRequestApplications = (
   axiosInstance.get<ApiResponse<PaginatedResult<any>>>(`/job-applications`, {
     params: { job_id: id, ...(params || {}) },
   });
+
+// Shortlist application
+export const shortlistApplication = (id: string) =>
+  axiosInstance.post<ApiResponse<any>>(`/job-applications/${id}/shortlist`);
+
+// Select application (Approve)
+export const selectApplication = (id: string) =>
+  axiosInstance.post<ApiResponse<any>>(`/job-applications/${id}/select`);
+
+// Reject application
+export const rejectApplication = (id: string, reason: string) =>
+  axiosInstance.post<ApiResponse<any>>(`/job-applications/${id}/reject`, {
+    reason,
+  });

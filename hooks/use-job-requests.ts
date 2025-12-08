@@ -211,3 +211,40 @@ export function useMyApplications(params?: {
     gcTime: 5 * 60 * 1000, // 5 phút
   });
 }
+// Hook để shortlist application
+export function useShortlistApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => jobRequestsApi.shortlistApplication(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["job-request"] });
+    },
+  });
+}
+
+// Hook để select application
+export function useSelectApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => jobRequestsApi.selectApplication(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["job-request"] });
+      queryClient.invalidateQueries({ queryKey: ["my-job-requests"] });
+    },
+  });
+}
+
+// Hook để reject application
+export function useRejectApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      jobRequestsApi.rejectApplication(id, reason),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["job-request"] });
+    },
+  });
+}
