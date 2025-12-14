@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { notificationApi } from "@/lib/api-notification";
+import { messageSocket } from "@/lib/message-socket";
 import type {
   NotificationQueryParams,
   CreateNotificationRequest,
@@ -43,6 +45,7 @@ export function useNotifications(params?: NotificationQueryParams) {
 
 /**
  * Hook lấy thông báo chưa đọc
+ * WebSocket sẽ trigger invalidation khi có notification mới
  */
 export function useUnreadNotifications(limit: number = 10) {
   return useQuery({
@@ -54,15 +57,40 @@ export function useUnreadNotifications(limit: number = 10) {
       }
       return response.data;
     },
-    staleTime: 10000, // 10s
-    refetchInterval: 30000, // Refetch mỗi 30s
+    staleTime: 5 * 60 * 1000, // 5 phút
+    gcTime: 10 * 60 * 1000, // 10 phút
+    refetchInterval: false, // ❌ DISABLE polling - dùng WS
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 }
 
 /**
  * Hook lấy số lượng thông báo chưa đọc
+ * Sử dụng WebSocket để realtime updates, không polling
  */
 export function useUnreadCount() {
+  const queryClient = useQueryClient();
+
+  // Listen WebSocket notification events
+  useEffect(() => {
+    const handleNewNotification = (data: any) => {
+      console.log('🔔 [Notifications] New notification received, invalidating count');
+      // Invalidate unread count để refetch
+      queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      queryClient.invalidateQueries({ queryKey: notificationKeys.unread() });
+      queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
+    };
+
+    // Subscribe to notification events
+    messageSocket.on('notification:new', handleNewNotification);
+
+    return () => {
+      // Cleanup listener
+      messageSocket.off('notification:new', handleNewNotification);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: notificationKeys.unreadCount(),
     queryFn: async () => {
@@ -74,8 +102,11 @@ export function useUnreadCount() {
       }
       return response.data;
     },
-    staleTime: 10000, // 10s
-    refetchInterval: 30000, // Refetch mỗi 30s
+    staleTime: 5 * 60 * 1000, // 5 phút - Cache lâu vì có WS realtime
+    gcTime: 10 * 60 * 1000, // 10 phút
+    refetchInterval: false, // ❌ DISABLE polling - dùng WS
+    refetchOnWindowFocus: false, // Không refetch khi focus
+    refetchOnReconnect: true, // Refetch khi reconnect network
   });
 }
 

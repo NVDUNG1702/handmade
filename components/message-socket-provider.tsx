@@ -174,9 +174,19 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       updateUserPresence(data.userId, data.isOnline, data.lastSeen);
     };
 
-    const handleNotification = (data: any) => {
+    const handleNotification = (payload: any) => {
       // Invalidate notification queries để cập nhật unread count và list
+      // 🔔 Note: useUnreadCount hook already does this, but keeping it here as backup/global handler
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+
+      // Normalize payload data (backend sends action_url inside data object)
+      const data = {
+        ...payload,
+        action_url: payload.action_url || payload.data?.action_url,
+        action_text: payload.action_text || payload.data?.action_text,
+        priority: payload.priority || payload.data?.priority,
+        icon: payload.icon || payload.data?.icon,
+      };
 
       // Map notification type to custom toast type
       const notificationType = data.type || "info";
@@ -194,7 +204,7 @@ export const MessageSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             description={data.message || data.description}
             avatar={data.avatar}
             actionLabel={
-              data.action_url ? data.action_label || "Xem" : undefined
+              data.action_url ? data.action_text || data.action_label || "Xem" : undefined
             }
             onAction={
               data.action_url
