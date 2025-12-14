@@ -4,6 +4,7 @@ import { use } from "react"
 import { useUserBySlug } from "@/hooks/use-user"
 import { useUserSkills } from "@/hooks/use-skills"
 import { useJobReviewsByWorker } from "@/hooks/use-job-reviews"
+import { useJobRequests } from "@/hooks/use-job-requests"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +13,7 @@ import { MapPin, Star, Mail, Phone, Award, Briefcase, TrendingUp, MessageSquare,
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { SkillDetailDialog } from "@/components/profile/SkillDetailDialog"
+import { JobCard } from "@/components/job/JobCard"
 
 export default function UserProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
@@ -20,6 +22,19 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
   const { data: user, isLoading: userLoading, error } = useUserBySlug(slug)
   const { data: userSkills, isLoading: skillsLoading } = useUserSkills(user?._id || "")
   const { data: reviewsData, isLoading: reviewsLoading } = useJobReviewsByWorker(user?._id || "")
+
+  // Fetch completed jobs by this user (as worker)
+  const { data: completedJobsData, isLoading: completedJobsLoading } = useJobRequests({ 
+    assigned_to: user?._id || "", 
+    status: "COMPLETED",
+    limit: 6 
+  })
+
+  // Fetch posted jobs by this user (as creator)
+  const { data: postedJobsData, isLoading: postedJobsLoading } = useJobRequests({ 
+    created_by: user?._id || "",
+    limit: 6 
+  })
 
   // Show not found if user doesn't exist
   if (error || (!userLoading && !user)) {
@@ -39,7 +54,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
 
   const reviews = reviewsData?.data || []
   const skills = userSkills || []
-  
+  const completedJobs = completedJobsData?.data || []
+  const postedJobs = postedJobsData?.data || []
+
   // Calculate stats from real data
   const avgRating = reviews.length > 0
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
@@ -164,9 +181,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
               <div className="p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 text-center">
                 <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-500 mb-1">
                   <Briefcase className="w-5 h-5" />
-                  <span className="text-2xl font-bold">—</span>
+                  <span className="text-2xl font-bold">{completedJobs.length}</span>
                 </div>
-                <p className="text-xs font-medium text-muted-foreground">Công việc</p>
+                <p className="text-xs font-medium text-muted-foreground">Việc đã làm</p>
               </div>
             </div>
 
@@ -203,7 +220,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
 
         {/* Tabs */}
         <Tabs defaultValue="reviews">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="reviews">
               <Award className="w-4 h-4 mr-2" />
               Đánh giá ({reviews.length})
@@ -212,9 +229,13 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
               <Briefcase className="w-4 h-4 mr-2" />
               Portfolio
             </TabsTrigger>
-            <TabsTrigger value="jobs">
+            <TabsTrigger value="posted_jobs">
+              <Briefcase className="w-4 h-4 mr-2" />
+              Đã đăng
+            </TabsTrigger>
+            <TabsTrigger value="completed_jobs">
               <TrendingUp className="w-4 h-4 mr-2" />
-              Công việc
+              Đã làm
             </TabsTrigger>
           </TabsList>
 
@@ -290,12 +311,49 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
             </div>
           </TabsContent>
 
-          <TabsContent value="jobs" className="mt-4">
-            <Card className="p-12 text-center border-dashed">
-              <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-              <p className="font-medium mb-1">Danh sách công việc</p>
-              <p className="text-sm text-muted-foreground">Danh sách công việc đã hoàn thành sẽ hiển thị ở đây</p>
-            </Card>
+          <TabsContent value="posted_jobs" className="mt-4">
+             {postedJobsLoading ? (
+                <Card className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">Đang tải danh sách công việc...</p>
+                </Card>
+             ) : postedJobs.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {postedJobs.map((job) => (
+                    <div key={job.id} className="h-full">
+                       <JobCard job={job} nearbyEnabled={false} />
+                    </div>
+                  ))}
+                </div>
+             ) : (
+                <Card className="p-12 text-center border-dashed">
+                  <Briefcase className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="font-medium mb-1">Chưa có công việc nào đã đăng</p>
+                </Card>
+             )}
+          </TabsContent>
+
+          <TabsContent value="completed_jobs" className="mt-4">
+             {completedJobsLoading ? (
+                <Card className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">Đang tải danh sách công việc...</p>
+                </Card>
+             ) : completedJobs.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {completedJobs.map((job) => (
+                    <div key={job.id} className="h-full">
+                       <JobCard job={job} nearbyEnabled={false} />
+                    </div>
+                  ))}
+                </div>
+             ) : (
+                <Card className="p-12 text-center border-dashed">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="font-medium mb-1">Chưa có công việc hoàn thành</p>
+                  <p className="text-sm text-muted-foreground">Người dùng này chưa hoàn thành công việc nào trên hệ thống</p>
+                </Card>
+             )}
           </TabsContent>
         </Tabs>
       </div>

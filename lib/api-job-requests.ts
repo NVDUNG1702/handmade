@@ -49,6 +49,8 @@ export interface JobRequestFilters {
   budget_max?: number;
   is_featured?: boolean;
   is_urgent?: boolean;
+  assigned_to?: string;
+  created_by?: string;
 }
 
 // Tạo job request mới

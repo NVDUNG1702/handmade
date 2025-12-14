@@ -15,6 +15,9 @@ import { EditSkillDialog } from "@/components/profile/EditSkillDialog"
 import { DeleteSkillConfirm } from "@/components/profile/DeleteSkillConfirm"
 import { SkillDetailDialog } from "@/components/profile/SkillDetailDialog"
 
+import { useJobRequests } from "@/hooks/use-job-requests"
+import { JobCard } from "@/components/job/JobCard"
+
 export default function MyProfilePage() {
   const { user, loading, mounted, authed } = useUser()
 
@@ -25,6 +28,19 @@ export default function MyProfilePage() {
 
   const { data: userSkills, isLoading: skillsLoading } = useUserSkills(user?.id || "")
   const { data: reviewsData, isLoading: reviewsLoading } = useJobReviewsByWorker(user?.id || "")
+
+  // Fetch completed jobs by this user (as worker)
+  const { data: completedJobsData, isLoading: completedJobsLoading } = useJobRequests({ 
+    assigned_to: user?.id || "", 
+    status: "COMPLETED",
+    limit: 6 
+  })
+
+  // Fetch posted jobs by this user (as creator)
+  const { data: postedJobsData, isLoading: postedJobsLoading } = useJobRequests({ 
+    created_by: user?.id || "",
+    limit: 6 
+  })
 
   if (loading || !user) {
     return (
@@ -39,6 +55,9 @@ export default function MyProfilePage() {
 
   const reviews = reviewsData?.data || []
   const skills = userSkills || []
+  const completedJobs = completedJobsData?.data || []
+  const postedJobs = postedJobsData?.data || []
+  
   const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0
 
   return (
@@ -148,9 +167,9 @@ export default function MyProfilePage() {
               <div className="p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 text-center">
                 <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-500 mb-1">
                   <Briefcase className="w-5 h-5" />
-                  <span className="text-2xl font-bold">—</span>
+                  <span className="text-2xl font-bold">{completedJobs.length}</span>
                 </div>
-                <p className="text-xs font-medium text-muted-foreground">Công việc</p>
+                <p className="text-xs font-medium text-muted-foreground">Việc đã làm</p>
               </div>
             </div>
 
@@ -196,7 +215,7 @@ export default function MyProfilePage() {
 
         {/* Tabs */}
         <Tabs defaultValue="reviews">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="reviews">
               <Award className="w-4 h-4 mr-2" />
               Đánh giá ({reviews.length})
@@ -205,9 +224,13 @@ export default function MyProfilePage() {
               <Briefcase className="w-4 h-4 mr-2" />
               Portfolio
             </TabsTrigger>
-            <TabsTrigger value="jobs">
+            <TabsTrigger value="posted_jobs">
+              <Briefcase className="w-4 h-4 mr-2" />
+              Đã đăng
+            </TabsTrigger>
+            <TabsTrigger value="completed_jobs">
               <TrendingUp className="w-4 h-4 mr-2" />
-              Công việc
+              Đã làm
             </TabsTrigger>
           </TabsList>
 
@@ -251,19 +274,72 @@ export default function MyProfilePage() {
           </TabsContent>
 
           <TabsContent value="portfolio" className="mt-4">
-            <Card className="p-12 text-center border-dashed">
-              <Briefcase className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-              <p className="font-medium mb-1">Portfolio</p>
-              <p className="text-sm text-muted-foreground">Thêm hình ảnh công việc</p>
-            </Card>
+             <div className="grid gap-4">
+              {skills.map((userSkill) =>
+                userSkill.portfolio_images && userSkill.portfolio_images.length > 0 && (
+                  <Card key={userSkill.id || userSkill._id} className="p-6">
+                    <h4 className="font-semibold mb-4">{userSkill.skillName}</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {userSkill.portfolio_images.map((img, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden">
+                          <Image src={img} alt={`${userSkill.skillName} portfolio`} fill className="object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )
+              )}
+              {skills.every(s => !s.portfolio_images || s.portfolio_images.length === 0) && (
+                <Card className="p-12 text-center border-dashed">
+                  <Briefcase className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="font-medium mb-1">Chưa có portfolio</p>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
-          <TabsContent value="jobs" className="mt-4">
-            <Card className="p-12 text-center border-dashed">
-              <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-              <p className="font-medium mb-1">Công việc</p>
-              <p className="text-sm text-muted-foreground">Lịch sử công việc đã hoàn thành</p>
-            </Card>
+          <TabsContent value="posted_jobs" className="mt-4">
+             {postedJobsLoading ? (
+                <Card className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">Đang tải danh sách công việc...</p>
+                </Card>
+             ) : postedJobs.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {postedJobs.map((job) => (
+                    <div key={job.id} className="h-full">
+                       <JobCard job={job} nearbyEnabled={false} />
+                    </div>
+                  ))}
+                </div>
+             ) : (
+                <Card className="p-12 text-center border-dashed">
+                  <Briefcase className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="font-medium mb-1">Chưa có công việc nào đã đăng</p>
+                </Card>
+             )}
+          </TabsContent>
+
+          <TabsContent value="completed_jobs" className="mt-4">
+             {completedJobsLoading ? (
+                <Card className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">Đang tải danh sách công việc...</p>
+                </Card>
+             ) : completedJobs.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {completedJobs.map((job) => (
+                    <div key={job.id} className="h-full">
+                       <JobCard job={job} nearbyEnabled={false} />
+                    </div>
+                  ))}
+                </div>
+             ) : (
+                <Card className="p-12 text-center border-dashed">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="font-medium mb-1">Chưa có công việc hoàn thành</p>
+                </Card>
+             )}
           </TabsContent>
         </Tabs>
       </div>
