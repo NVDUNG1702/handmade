@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { JobActionMenu } from "./JobActionMenu";
 
 export interface JobCardProps {
   job: {
@@ -43,9 +44,10 @@ export interface JobCardProps {
   isFavorite?: boolean;
   onToggleFavorite?: (e: React.MouseEvent) => void;
   nearbyEnabled?: boolean;
+  isOwner?: boolean;
 }
 
-export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled }: JobCardProps) {
+export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled, isOwner }: JobCardProps) {
   const formatCurrency = (value?: number) => {
     return value?.toLocaleString("vi-VN") || "0";
   };
@@ -82,11 +84,34 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled }: Jo
             )}
           </div>
 
-          {job.is_featured && (
+          {job.is_featured && !isOwner && (
             <div className="absolute top-3 right-3">
               <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" />
                 Nổi bật
+              </div>
+            </div>
+          )}
+
+          {isOwner && (
+            <div className="absolute top-3 right-3 z-10">
+              <JobActionMenu 
+                job={{
+                  id: job.id,
+                  title: job.title,
+                  status: job.status,
+                  job_slug: job.job_slug
+                }} 
+                triggerVariant="secondary"
+                className="bg-white/90 hover:bg-white text-black shadow-sm"
+              />
+            </div>
+          )}
+
+          {job.is_featured && isOwner && (
+            <div className="absolute top-3 right-14">
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
               </div>
             </div>
           )}
@@ -98,18 +123,20 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled }: Jo
             </Badge>
           </div>
 
-          {/* Favorite Button */}
-          <Button
-            size="icon"
-            variant="ghost"
-            className="absolute bottom-3 right-3 rounded-full bg-black/20 hover:bg-white/20 text-white backdrop-blur-md border border-white/10"
-            onClick={(e) => {
-              e.preventDefault();
-              onToggleFavorite?.(e);
-            }}
-          >
-            <Heart className={cn("w-5 h-5 transition-colors", isFavorite ? "fill-red-500 text-red-500" : "text-white")} />
-          </Button>
+          {/* Favorite Button (Hide if Owner) */}
+          {!isOwner && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="absolute bottom-3 right-3 rounded-full bg-black/20 hover:bg-white/20 text-white backdrop-blur-md border border-white/10"
+              onClick={(e) => {
+                e.preventDefault();
+                onToggleFavorite?.(e);
+              }}
+            >
+              <Heart className={cn("w-5 h-5 transition-colors", isFavorite ? "fill-red-500 text-red-500" : "text-white")} />
+            </Button>
+          )}
         </div>
 
         {/* Content Section */}

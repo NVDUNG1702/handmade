@@ -29,6 +29,7 @@ import type { ApiResponse } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/lib/auth-store";
 import { useJobRequests, useJobRequestById } from "@/hooks/use-job-requests";
+import { JobActionMenu } from "@/components/job/JobActionMenu";
 
 // Utility function to format time
 const formatTimeAgo = (dateString: string | Date): string => {
@@ -199,14 +200,27 @@ export default function JobDetailPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="border-white/30 bg-black/20 backdrop-blur text-white hover:bg-white/20 hover:text-white hover:border-white/50"
-                      aria-label="Yêu thích"
-                    >
-                      <Heart className="w-5 h-5" />
-                    </Button>
+                    {user?.id === job.created_by?.id ? (
+                      <JobActionMenu 
+                        job={{
+                          id: job.id,
+                          title: job.title,
+                          status: job.status,
+                          job_slug: job.job_slug
+                        }}
+                        triggerVariant="outline"
+                        className="border-white/30 bg-black/20 backdrop-blur text-white hover:bg-white/20 hover:text-white hover:border-white/50"
+                      />
+                    ) : (
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="border-white/30 bg-black/20 backdrop-blur text-white hover:bg-white/20 hover:text-white hover:border-white/50"
+                        aria-label="Yêu thích"
+                      >
+                        <Heart className="w-5 h-5" />
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="outline"

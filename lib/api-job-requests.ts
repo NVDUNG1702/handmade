@@ -22,6 +22,7 @@ export interface CreateJobRequest {
   is_urgent?: boolean;
   latitude?: number;
   longitude?: number;
+  status?: string;
 }
 
 export interface JobRequestFilters {
