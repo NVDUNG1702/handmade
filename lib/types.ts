@@ -242,3 +242,109 @@ export interface LegacyBlogItem {
   comments: number;
   views: number;
 }
+
+// ===== JOB REVIEW TYPES =====
+export interface JobReview {
+  id: string;
+  job_request_id: string;
+  reviewer_id: string;
+  worker_id: string;
+  skill_id?: string;
+  rating: number;
+  comment?: string;
+  images: string[];
+  is_verified: boolean;
+  job_request?: {
+    id: string;
+    title: string;
+    job_slug?: string;
+  };
+  reviewer?: User;
+  worker?: User;
+  skill?: Skill;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface CreateJobReviewDto {
+  job_request_id: string;
+  worker_id: string;
+  skill_id?: string;
+  rating: number;
+  comment?: string;
+  images?: string[];
+}
+
+export interface UpdateJobReviewDto {
+  rating?: number;
+  comment?: string;
+  images?: string[];
+}
+
+export interface JobReviewQueryParams {
+  page?: number;
+  limit?: number;
+  job_request_id?: string;
+  worker_id?: string;
+  reviewer_id?: string;
+  skill_id?: string;
+  min_rating?: number;
+  sort_by?: 'created_at' | 'rating';
+  sort_order?: 'asc' | 'desc';
+}
+
+// ===== USER SKILL TYPES =====
+export interface UserSkill {
+  id: string;
+  _id?: string;
+  user_id?: string;
+  userId?: string;
+  skillId: string;
+  skillName: string;
+  level?: number | 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  experience_years?: number;
+  years_of_experience?: number;
+  description?: string;
+  portfolio_images?: string[];
+  is_public?: boolean;
+  is_verified?: boolean;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface CreateUserSkillDto {
+  skill_id: string;
+  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  experience_years: number;
+  description?: string;
+  portfolio_images?: string[];
+  is_public?: boolean;
+}
+
+export interface UpdateUserSkillDto {
+  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  experience_years?: number;
+  description?: string;
+  portfolio_images?: string[];
+  is_public?: boolean;
+}
+
+// ===== SKILL STATISTICS TYPES =====
+export interface SkillStats {
+  skill: Skill;
+  worker_count: number;
+  completed_jobs: number;
+  average_rating: number;
+  total_reviews: number;
+  rating_distribution: Record<number, number>;
+  top_workers?: User[];
+}
+
+export interface WorkerSkillStats {
+  total_reviews: number;
+  average_rating: number;
+  rating_distribution: Record<number, number>;
+}

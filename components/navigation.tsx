@@ -300,7 +300,7 @@ export function Navigation() {
                           asChild
                           onClick={() => setUserMenuOpen(false)}
                         >
-                          <Link href="/profile/1">
+                          <Link href="/my-profile">
                             <User className="w-4 h-4 mr-3" />
                             Hồ sơ cá nhân
                           </Link>
@@ -527,7 +527,7 @@ export function Navigation() {
                     asChild
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link href="/profile/1">
+                    <Link href="/my-profile">
                       <User className="w-4 h-4 mr-3" />
                       Hồ sơ
                     </Link>

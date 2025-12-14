@@ -8,6 +8,8 @@ export const API_CONSTANTS = {
     // Skills
     SKILLS: {
       LIST: "/skills",
+      DETAIL: "/skills/:id",
+      STATS: "/skills/:skillId/stats",
     },
     // Locations
     LOCATIONS: {
@@ -25,6 +27,20 @@ export const API_CONSTANTS = {
       LIST: "/job-requests",
       DETAIL: "/job-requests/:id",
       PROPOSALS_LIST: "/job-requests/:id/proposals",
+    },
+    JOB_REVIEWS: {
+      CREATE: "/job-requests/:jobId/reviews",
+      LIST: "/job-reviews",
+      BY_JOB: "/job-requests/:jobId/reviews",
+      BY_WORKER: "/users/:userId/job-reviews",
+      BY_SKILL: "/skills/:skillId/reviews",
+      DETAIL: "/job-reviews/:id",
+      UPDATE: "/job-reviews/:id",
+      DELETE: "/job-reviews/:id",
+    },
+    USERS: {
+      SKILLS: "/skills/user-skills/:userId",
+      COMPLETED_JOBS: "/users/:userId/completed-jobs",
     },
   },
   QUERY: {

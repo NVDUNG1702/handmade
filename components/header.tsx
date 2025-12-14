@@ -145,7 +145,7 @@ export function Header() {
                     </div>
 
                     <Link
-                      href="/profile/1"
+                      href="/my-profile"
                       onClick={() => setUserMenuOpen(false)}
                     >
                       <Button
@@ -324,7 +324,7 @@ export function Header() {
 
               <div className="border-t border-white/10 pt-2 mt-2">
                 <Link
-                  href="/profile/1"
+                  href="/my-profile"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Button

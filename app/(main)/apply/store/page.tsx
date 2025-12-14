@@ -38,7 +38,7 @@ export default function ApplyStorePage() {
       <div className="container mx-auto p-6 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/profile/1">
+          <Link href="/my-profile">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Quay lại
