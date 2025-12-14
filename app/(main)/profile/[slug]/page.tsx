@@ -12,6 +12,7 @@ import { MapPin, Star, Calendar, MessageSquare, Share2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { SkillDetailDialog } from "@/components/profile/SkillDetailDialog"
 
 export default function UserProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
@@ -146,14 +147,20 @@ export default function UserProfilePage({ params }: { params: Promise<{ slug: st
                   <p className="text-muted-foreground text-sm">Đang tải...</p>
                 ) : skills.length > 0 ? (
                   skills.map((userSkill) => (
-                    <Badge
+                    <SkillDetailDialog
                       key={userSkill.id || userSkill._id}
-                      variant="secondary"
-                      className="bg-primary/10 text-primary border-primary/20"
+                      skill={userSkill}
+                      userId={user._id}
+                      isOwner={false}
                     >
-                      {userSkill.skillName} {userSkill.level ? `• ${userSkill.level}` : ''}
-                      {(userSkill.experience_years || userSkill.years_of_experience) && ` • ${userSkill.experience_years || userSkill.years_of_experience} năm`}
-                    </Badge>
+                      <Badge
+                        variant="secondary"
+                        className="bg-primary/10 text-primary border-primary/20 cursor-pointer hover:bg-primary/20 transition-colors"
+                      >
+                        {userSkill.skillName} {userSkill.level ? `• ${userSkill.level}` : ''}
+                        {(userSkill.experience_years || userSkill.years_of_experience) && ` • ${userSkill.experience_years || userSkill.years_of_experience} năm`}
+                      </Badge>
+                    </SkillDetailDialog>
                   ))
                 ) : (
                   <p className="text-muted-foreground text-sm">Chưa có kỹ năng</p>

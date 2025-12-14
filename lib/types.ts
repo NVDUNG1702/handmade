@@ -316,21 +316,21 @@ export interface UserSkill {
 }
 
 export interface CreateUserSkillDto {
-  skill_id: string;
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  experience_years: number;
-  description?: string;
-  portfolio_images?: string[];
+  userId: string;
+  skillId: string;
+  proficiency_level?: number; // 1-10
+  years_of_experience?: number; // ≥ 0
+  experience_description?: string; // Max 500 chars
   is_public?: boolean;
 }
 
 export interface UpdateUserSkillDto {
-  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  experience_years?: number;
-  description?: string;
-  portfolio_images?: string[];
+  proficiency_level?: number; // 1-10
+  years_of_experience?: number; // ≥ 0
+  experience_description?: string; // Max 500 chars
   is_public?: boolean;
 }
+
 
 // ===== SKILL STATISTICS TYPES =====
 export interface SkillStats {

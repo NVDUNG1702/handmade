@@ -10,6 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Settings, MapPin, Star, Mail, Phone, Award, Briefcase, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import { redirect } from "next/navigation"
+import { AddSkillDialog } from "@/components/profile/AddSkillDialog"
+import { EditSkillDialog } from "@/components/profile/EditSkillDialog"
+import { DeleteSkillConfirm } from "@/components/profile/DeleteSkillConfirm"
+import { SkillDetailDialog } from "@/components/profile/SkillDetailDialog"
 
 export default function MyProfilePage() {
   const { user, loading, mounted, authed } = useUser()
@@ -150,14 +154,13 @@ export default function MyProfilePage() {
               </div>
             </div>
 
-            {/* Skills Section */}
             <div className="mt-8 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
                   Kỹ năng chuyên môn
                 </h3>
-                <Button variant="outline" size="sm">+ Thêm</Button>
+                <AddSkillDialog userId={user.id} />
               </div>
               
               {skillsLoading ? (
@@ -168,10 +171,18 @@ export default function MyProfilePage() {
               ) : skills.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {skills.map((s) => (
-                    <Badge key={s.id || s._id} variant="secondary" className="px-3 py-1.5 bg-primary/10 text-primary">
-                      {s.skillName} {s.level ? `• ${s.level}` : ''}
-                      {(s.experience_years || s.years_of_experience) && ` • ${s.experience_years || s.years_of_experience} năm`}
-                    </Badge>
+                    <div key={s.id || s._id} className="flex items-center gap-1 group">
+                      <SkillDetailDialog skill={s} userId={user.id} isOwner={true}>
+                        <Badge variant="secondary" className="px-3 py-1.5 bg-primary/10 text-primary cursor-pointer hover:bg-primary/20 transition-colors">
+                          {s.skillName} {s.level ? `• ${s.level}` : ''}
+                          {(s.experience_years || s.years_of_experience) && ` • ${s.experience_years || s.years_of_experience} năm`}
+                        </Badge>
+                      </SkillDetailDialog>
+                      <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <EditSkillDialog skill={s} />
+                        <DeleteSkillConfirm skillId={s.id || s._id!} skillName={s.skillName} />
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
