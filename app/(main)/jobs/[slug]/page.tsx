@@ -333,10 +333,13 @@ export default function JobDetailPage() {
                   </>
                 ) : (
                   <>
-                    <Link href={`/jobs/${job.job_slug || job.id}/apply`} className="block w-full">
-                      <Button className="w-full h-12 text-base font-semibold shadow-md">
+                    <Link href={`/jobs/${job.job_slug || job.id}/apply`} className={`block w-full ${job.status !== "OPEN" ? "pointer-events-none" : ""}`}>
+                      <Button 
+                        className="w-full h-12 text-base font-semibold shadow-md"
+                        disabled={job.status !== "OPEN"}
+                      >
                         <Briefcase className="w-4 h-4 mr-2" />
-                        Ứng tuyển ngay
+                        {job.status === "OPEN" ? "Ứng tuyển ngay" : "Công việc đã đóng"}
                       </Button>
                     </Link>
 

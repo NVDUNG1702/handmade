@@ -59,13 +59,21 @@ export function JobActionMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem asChild>
-            <Link href={`/jobs/edit/${job.id}`} className="cursor-pointer">
+            <Link 
+              href={`/jobs/edit/${job.id}`} 
+              className="cursor-pointer"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Pencil className="w-4 h-4 mr-2" />
               Chỉnh sửa
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onSelect={() => setShowStatusDialog(true)}
+            onSelect={(e) => {
+              e.preventDefault();
+              setShowStatusDialog(true);
+            }}
+            onClick={(e) => e.stopPropagation()}
             className="cursor-pointer"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -73,7 +81,11 @@ export function JobActionMenu({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onSelect={() => setShowDeleteDialog(true)}
+            onSelect={(e) => {
+              e.preventDefault();
+              setShowDeleteDialog(true);
+            }}
+            onClick={(e) => e.stopPropagation()}
             className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
           >
             <Trash2 className="w-4 h-4 mr-2" />

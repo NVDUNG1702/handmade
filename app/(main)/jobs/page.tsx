@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSkills } from "@/hooks/use-skills";
+import { useUser } from "@/hooks/use-user"; // Imported useUser
 import { useProvinces, useWards } from "@/hooks/use-location";
 import { useJobFilters } from "@/hooks/use-job-filters";
 import { useJobRequests } from "@/hooks/use-job-requests";
@@ -79,6 +80,8 @@ export default function JobsPage() {
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
+  const { user } = useUser(); // Get current user
+  
   // Fetch skills and locations
   const { data: skills = [] } = useSkills();
   const { data: provincesData } = useProvinces();
@@ -572,6 +575,12 @@ export default function JobsPage() {
               job={job}
               isFavorite={favorites.has(job.id)}
               nearbyEnabled={nearbyEnabled}
+              isOwner={user && job.created_by && (
+                 // Check if created_by is object (populated) or string (ID)
+                 typeof job.created_by === 'object' 
+                   ? (job.created_by as any)._id === user.id || (job.created_by as any).id === user.id
+                   : job.created_by === user.id
+              )}
               onToggleFavorite={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

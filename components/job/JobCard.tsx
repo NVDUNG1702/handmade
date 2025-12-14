@@ -57,6 +57,25 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled, isOw
     return new Date(date).toLocaleDateString("vi-VN");
   };
 
+  const getStatusConfig = (status?: string) => {
+    switch (status) {
+      case "ASSIGNED":
+        return { label: "Đã giao việc", className: "bg-blue-500 hover:bg-blue-600 border-0" };
+      case "IN_PROGRESS":
+        return { label: "Đang thực hiện", className: "bg-yellow-500 hover:bg-yellow-600 border-0" };
+      case "COMPLETED":
+        return { label: "Đã hoàn thành", className: "bg-green-500 hover:bg-green-600 border-0" };
+      case "CANCELLED":
+        return { label: "Đã hủy", className: "bg-gray-500 hover:bg-gray-600 border-0" };
+      case "EXPIRED":
+        return { label: "Hết hạn", className: "bg-red-500 hover:bg-red-600 border-0" };
+      default:
+        return null;
+    }
+  };
+
+  const statusConfig = getStatusConfig(job.status);
+
   return (
     <Link href={`/jobs/${job.job_slug || job.id}`} className="block h-full">
       <div className="group relative h-full bg-card text-card-foreground border border-border rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
@@ -77,6 +96,11 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled, isOw
                 Gấp
               </Badge>
             )}
+            {statusConfig && (
+              <Badge className={`text-white shadow-lg ${statusConfig.className}`}>
+                {statusConfig.label}
+              </Badge>
+            )}
             {job.priority === "HIGH" && (
               <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg">
                 Ưu tiên cao
@@ -94,7 +118,13 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled, isOw
           )}
 
           {isOwner && (
-            <div className="absolute top-3 right-3 z-10">
+            <div 
+              className="absolute top-3 right-3 z-10"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
               <JobActionMenu 
                 job={{
                   id: job.id,
