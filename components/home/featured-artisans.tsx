@@ -8,6 +8,7 @@ import Link from "next/link"
 const artisans = [
   {
     id: 1,
+    slug: "nguyen-thi-mai",
     name: "Nguyễn Thị Mai",
     specialty: "Da thủ công",
     avatar: "/vietnamese-woman-smiling.jpg",
@@ -19,6 +20,7 @@ const artisans = [
   },
   {
     id: 2,
+    slug: "tran-van-hung",
     name: "Trần Văn Hùng",
     specialty: "Thợ Mộc",
     avatar: "/vietnamese-man-professional.jpg",
@@ -30,6 +32,7 @@ const artisans = [
   },
   {
     id: 3,
+    slug: "le-thi-huong",
     name: "Lê Thị Hương",
     specialty: "Thêu tay",
     avatar: "/vietnamese-woman-happy.jpg",
@@ -41,6 +44,7 @@ const artisans = [
   },
   {
     id: 4,
+    slug: "pham-minh-tuan",
     name: "Phạm Minh Tuấn",
     specialty: "Gốm sứ",
     avatar: "/vietnamese-man-casual.jpg",
@@ -79,7 +83,7 @@ export function FeaturedArtisans() {
           {artisans.map((artisan, index) => (
             <Link
               key={artisan.id}
-              href={`/profile/${artisan.id}`}
+              href={`/profile/${artisan.slug}`}
               className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-300 group w-full max-w-[300px] md:max-w-none"
               style={{ animationDelay: `${index * 100}ms` }}
             >

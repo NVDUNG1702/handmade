@@ -61,25 +61,32 @@ export function useUser() {
  */
 export function useUserBySlug(slug: string) {
   const [user, setUser] = useState<CurrentUser | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/users/slug/${slug}`);
-        if (!response.ok) throw new Error("User not found");
-        const data = await response.json();
+        // Use axiosInstance to hit backend directly
+        // Backend endpoint: /users/slug/:slug (relative to BASE_URL)
+        const response = await import("@/lib/axios-instance").then(mod => mod.default.get(`/users/slug/${slug}`));
+        const data = response.data;
+        
         if (!cancelled) {
-          setUser(data.user || data.data);
+          // data.data is the user object from backend standard response { code, message, data }
+          setUser(data.data);
         }
-      } catch (err) {
+      } catch (err: any) {
         if (!cancelled) {
+          console.error("Error fetching user by slug:", err);
           setError(err as Error);
           setUser(null);
         }

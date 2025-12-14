@@ -1,11 +1,7 @@
 /** @type {import('next').NextConfig} */
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     // Enable image optimization for better performance
     unoptimized: false,
@@ -49,6 +45,18 @@ const nextConfig = {
     ],
     // Optimize image formats
     formats: ["image/avif", "image/webp"],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: "https://api.hanmade.space/api/v1/:path*",
+      },
+      {
+        source: "/api/:path*",
+        destination: "https://api.hanmade.space/api/:path*",
+      },
+    ];
   },
 };
 

@@ -30,7 +30,7 @@ export interface JobCardProps {
     is_featured?: boolean;
     is_urgent?: boolean;
     distance_km?: number;
-    created_by?: { full_name?: string; avatar_url?: string };
+    created_by?: { full_name?: string; avatar_url?: string; slug?: string };
     budget_min?: number;
     budget_max?: number;
     currency?: string;
@@ -189,7 +189,11 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled }: Jo
           {/* Footer */}
           <div className="mt-auto flex items-center justify-between pt-2">
             <div className="flex items-center gap-3">
-              <div className="relative w-8 h-8">
+              <Link 
+                href={job.created_by?.slug ? `/profile/${job.created_by.slug}` : "#"}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-8 h-8 hover:opacity-80 transition-opacity"
+              >
                 {job.created_by?.avatar_url ? (
                   <Image 
                     src={job.created_by.avatar_url} 
@@ -206,11 +210,15 @@ export function JobCard({ job, isFavorite, onToggleFavorite, nearbyEnabled }: Jo
                   <Star className="w-2 h-2 fill-current" />
                   4.9
                 </div>
-              </div>
+              </Link>
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-foreground truncate max-w-[80px]">
+                <Link 
+                  href={job.created_by?.slug ? `/profile/${job.created_by.slug}` : "#"}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-xs font-medium text-foreground truncate max-w-[80px] hover:text-primary hover:underline transition-all"
+                >
                   {job.created_by?.full_name || "Ẩn danh"}
-                </span>
+                </Link>
                 <span className="text-[10px] text-muted-foreground">
                   {formatDate(job.created_at)}
                 </span>

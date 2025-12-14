@@ -205,7 +205,7 @@ export default function ApplyWorkerPage() {
               >
                 Gửi đơn đăng ký
               </Button>
-              <Link href="/profile/1" className="flex-1">
+              <Link href="/my-profile" className="flex-1">
                 <Button type="button" variant="outline" className="w-full border-white/20 glass-card bg-transparent">
                   Hủy
                 </Button>

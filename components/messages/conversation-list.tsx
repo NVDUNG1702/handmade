@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -155,20 +156,26 @@ export function ConversationList({
                   >
                     {/* Avatar */}
                     <div className="relative">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={otherUser?.avatar} />
-                        <AvatarFallback>
-                          {otherUser?.full_name?.charAt(0) ||
-                            otherUser?.username?.charAt(0) ||
-                            "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                      <Link 
+                        href={`/profile/${otherUser?.slug || "#"}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="block hover:opacity-80 transition-opacity"
+                      >
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={otherUser?.avatar} />
+                          <AvatarFallback>
+                            {otherUser?.full_name?.charAt(0) ||
+                              otherUser?.username?.charAt(0) ||
+                              "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Link>
                       {/* Online indicator */}
                       <OnlineStatus
                         userId={otherUser?._id}
                         isOnline={otherUser?.status || false}
                         size="md"
-                        className="absolute bottom-0 right-0"
+                        className="absolute bottom-0 right-0 pointer-events-none"
                       />
                     </div>
 

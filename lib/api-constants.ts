@@ -1,5 +1,5 @@
 export const API_CONSTANTS = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1",
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "/api/v1",
   UPLOAD_URL:
     process.env.NEXT_PUBLIC_UPLOAD_URL || "http://localhost:4000/uploads",
   WS_URL: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000",

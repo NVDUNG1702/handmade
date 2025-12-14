@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -62,9 +62,22 @@ export function EditSkillDialog({ skill }: EditSkillDialogProps) {
       proficiency_level: skill.level as number | undefined,
       years_of_experience: skill.years_of_experience || skill.experience_years,
       experience_description: skill.description || "",
-      is_public: skill.is_public ?? true,
+      is_public: skill.is_active ?? skill.is_public ?? true, // Prioritize is_active, then is_public, default to true
     },
   });
+
+  useEffect(() => {
+    // Determine initial public state based on is_active or is_public
+    // If is_public is undefined, use is_active. Default to true.
+    const initialIsPublic = skill.is_active ?? skill.is_public ?? true;
+
+    form.reset({
+      proficiency_level: skill.level as number | undefined,
+      years_of_experience: skill.years_of_experience || skill.experience_years,
+      experience_description: skill.description || "",
+      is_public: initialIsPublic,
+    });
+  }, [skill, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {

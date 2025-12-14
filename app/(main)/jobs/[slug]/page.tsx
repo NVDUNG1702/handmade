@@ -390,28 +390,32 @@ export default function JobDetailPage() {
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  {job.created_by?.avatar_url ? (
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden border border-border">
-                      <Image 
-                        src={job.created_by.avatar_url} 
-                        alt={job.created_by.full_name || "User"} 
-                        fill 
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg">
-                      {job.created_by?.full_name?.charAt(0) ||
-                        job.customer?.name?.charAt(0) ||
-                        "C"}
-                    </div>
-                  )}
+                  <Link href={job.created_by?.slug ? `/profile/${job.created_by.slug}` : "#"}>
+                    {job.created_by?.avatar_url ? (
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden border border-border hover:opacity-80 transition-opacity">
+                        <Image 
+                          src={job.created_by.avatar_url} 
+                          alt={job.created_by.full_name || "User"} 
+                          fill 
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg hover:opacity-80 transition-opacity">
+                        {job.created_by?.full_name?.charAt(0) ||
+                          job.customer?.name?.charAt(0) ||
+                          "C"}
+                      </div>
+                    )}
+                  </Link>
                   <div className="flex-1">
-                    <p className="font-semibold text-foreground">
-                      {job.created_by?.full_name ||
-                        job.customer?.name ||
-                        "Khách hàng"}
-                    </p>
+                    <Link href={job.created_by?.slug ? `/profile/${job.created_by.slug}` : "#"}>
+                      <p className="font-semibold text-foreground hover:text-primary hover:underline transition-all">
+                        {job.created_by?.full_name ||
+                          job.customer?.name ||
+                          "Khách hàng"}
+                      </p>
+                    </Link>
                     <div className="flex items-center gap-1 text-sm">
                       <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
                       <span className="font-medium text-foreground">
@@ -443,13 +447,15 @@ export default function JobDetailPage() {
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Xem hồ sơ
-                </Button>
+                <Link href={job.created_by?.slug ? `/profile/${job.created_by.slug}` : "#"} className="w-full block">
+                  <Button
+                    variant="outline"
+                    className="w-full border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Xem hồ sơ
+                  </Button>
+                </Link>
               </div>
             </Card>
 

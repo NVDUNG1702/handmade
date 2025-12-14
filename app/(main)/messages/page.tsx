@@ -12,6 +12,7 @@ const SCROLL_RESTORE_DELAYS = {
 import { useAuth } from "@/components/auth-provider";
 import { useMessages, useConversations } from "@/hooks/use-messages";
 import { ConversationList } from "@/components/messages/conversation-list";
+import Link from "next/link";
 import { MessageBubble } from "@/components/messages/message-bubble";
 import { MessageInput } from "@/components/messages/message-input";
 import { OnlineStatus } from "@/components/messages/online-status";
@@ -482,26 +483,30 @@ export default function MessagesPage() {
                 {/* User info */}
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage
-                        src={getOtherUser(currentConversation)?.avatar}
-                      />
-                      <AvatarFallback>
-                        {getOtherUser(currentConversation)?.full_name?.charAt(
-                          0
-                        ) ||
-                          getOtherUser(currentConversation)?.username?.charAt(
+                    <Link href={`/profile/${getOtherUser(currentConversation)?.slug || "#"}`} className="block hover:opacity-80 transition-opacity">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage
+                          src={getOtherUser(currentConversation)?.avatar}
+                        />
+                        <AvatarFallback>
+                          {getOtherUser(currentConversation)?.full_name?.charAt(
                             0
                           ) ||
-                          "U"}
-                      </AvatarFallback>
-                    </Avatar>
+                            getOtherUser(currentConversation)?.username?.charAt(
+                              0
+                            ) ||
+                            "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                   </div>
                   <div>
-                    <h3 className="font-semibold">
-                      {getOtherUser(currentConversation)?.full_name ||
-                        getOtherUser(currentConversation)?.username}
-                    </h3>
+                    <Link href={`/profile/${getOtherUser(currentConversation)?.slug || "#"}`}>
+                      <h3 className="font-semibold hover:text-primary hover:underline transition-all">
+                        {getOtherUser(currentConversation)?.full_name ||
+                          getOtherUser(currentConversation)?.username}
+                      </h3>
+                    </Link>
                     <OnlineStatus
                       userId={getOtherUser(currentConversation)?._id}
                       isOnline={
